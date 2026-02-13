@@ -1,0 +1,16 @@
+{
+  "name": "E-3A AWACS quick planner",
+  "short_name": "E-3A Planner",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/awacs.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
