@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>E-3A AWACS quick planner</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="E-3A Planner">
+<link rel="apple-touch-icon" href="assets/awacs.png">
+
+  
   <style>
     :root{
       --bg:#ffffff; --fg:#111111; --muted:rgba(0,0,0,.65);
@@ -893,6 +901,13 @@ for reference only`;
   resetWind();
   setTab("fuel");
 })();
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js');
+  });
+}
 </script>
+
 </body>
 </html>
