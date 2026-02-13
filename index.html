@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>E-3A AWACS quick planner</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="E-3A Planner">
-<link rel="apple-touch-icon" href="assets/awacs.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="E-3A Planner">
+  <link rel="apple-touch-icon" href="assets/awacs.png">
 
-  
   <style>
     :root{
       --bg:#ffffff; --fg:#111111; --muted:rgba(0,0,0,.65);
@@ -696,40 +695,24 @@ for reference only`;
     return vmax;
   }
 
-  function nearestDirAtSameSpeedInt(speed, windDir, rwy, lim, wantInLimits){
-    // Scan integer wind directions (steady-only) and pick the closest that is in/out of limits.
-    // This avoids rounding artifacts (e.g., 210.4° → 210°) producing the same suggestion as the input.
-    const base = norm360(windDir);
-    const r = (rwy === 360 ? 0 : rwy);
-    let bestDir = null;
-    let bestDiff = Infinity;
-    let bestMargin = -Infinity;
+  function nearestDeltaAtSameSpeed(speed, currentAbsDelta, lim, wantInLimits){
+    let best = null, bestDiff = Infinity;
+    for (let d = 0; d <= 180; d += 0.1) {
+      const rad = d * Math.PI/180;
+      const xw = speed * Math.sin(rad);
+      const tail = (d > 90) ? speed * (-Math.cos(rad)) : 0;
 
-    for (let dir = 0; dir < 360; dir++){
-      const comp = componentsFor(speed, dir, rwy);
-      const vio = violations(speed, comp, lim);
-      const isIn = vio.ok;
-      if (wantInLimits ? isIn : !isIn){
-        let diff = Math.abs(norm180(dir - base));
-        // Prefer not returning exactly the input heading when looking for "just in limits"
-        if (wantInLimits && diff < 0.5) continue;
+      const vXW = xw > lim.xwLim + 1e-9;
+      const vMax = speed > lim.maxLim + 1e-9;
+      const vTW = tail > lim.twLim + 1e-9;
+      const isIn = !(vXW || vTW || vMax);
 
-        // Use minMargin as a tie-breaker (prefer "just in" near the boundary, or "just out" near the boundary)
-        const margin = vio.minMargin;
-        const boundaryScore = -Math.abs(margin); // closer to 0 is better
-        if (diff < bestDiff - 1e-9){
-          bestDiff = diff;
-          bestDir = dir;
-          bestMargin = boundaryScore;
-        } else if (Math.abs(diff - bestDiff) <= 1e-9){
-          if (boundaryScore > bestMargin){
-            bestDir = dir;
-            bestMargin = boundaryScore;
-          }
-        }
+      if (wantInLimits ? isIn : !isIn) {
+        const diff = Math.abs(d - currentAbsDelta);
+        if (diff < bestDiff) { bestDiff = diff; best = d; }
       }
     }
-    return bestDir;
+    return best;
   }
 
   function calcWind(){
@@ -831,8 +814,10 @@ for reference only`;
       const vIn = Math.max(0, Math.floor(vAllowSameAngle));
       setText("qrA", fmtDirSpd(wdir, vIn));
 
-      const dirIn = nearestDirAtSameSpeedInt(wspd, wdir, rwy, lim, true);
-      setText("qrB", (dirIn != null ? fmtDirSpd(dirIn, wspd) : "—"));
+      const targetAbs = nearestDeltaAtSameSpeed(wspd, compS.absDelta, lim, true);
+      const sign = (compS.signedDelta >= 0) ? +1 : -1;
+      const newDir = (targetAbs == null) ? NaN : norm360((rwy === 360 ? 0 : rwy) + sign * targetAbs);
+      setText("qrB", (isFinite(newDir) ? fmtDirSpd(newDir, wspd) : "—"));
     } else {
       $("qrA_lbl").textContent = "Just out of limits (same angle):";
       $("qrB_lbl").textContent = "Just out of limits (same speed):";
@@ -841,8 +826,10 @@ for reference only`;
       const vOut = Math.max(0, Math.floor(vAllowSameAngle) + 1);
       setText("qrA", fmtDirSpd(wdir, vOut));
 
-      const dirOut = nearestDirAtSameSpeedInt(wspd, wdir, rwy, lim, false);
-      setText("qrB", (dirOut != null ? fmtDirSpd(dirOut, wspd) : "—"));
+      const targetAbsOut = nearestDeltaAtSameSpeed(wspd, compS.absDelta, lim, false);
+      const sign = (compS.signedDelta >= 0) ? +1 : -1;
+      const newDir = (targetAbsOut == null) ? NaN : norm360((rwy === 360 ? 0 : rwy) + sign * targetAbsOut);
+      setText("qrB", (isFinite(newDir) ? fmtDirSpd(newDir, wspd) : "—"));
     }
   }
 
@@ -901,13 +888,14 @@ for reference only`;
   resetWind();
   setTab("fuel");
 })();
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('service-worker.js');
-  });
-}
 </script>
-
+<script>
+  // PWA offline support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+    });
+  }
+</script>
 </body>
 </html>
