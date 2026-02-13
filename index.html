@@ -87,10 +87,104 @@
       .awacs-logo{ height:34px; }
       h1{ font-size:17px; }
     }
+
+.launch{
+  position:fixed; inset:0;
+  background:#000;
+  z-index:99999;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.launch-inner{
+  position:relative;
+  width:min(92vw, 520px);
+  height:220px;
+}
+
+.reveal-wrap{
+  position:absolute; left:0; right:0; top:86px;
+  height:48px;
+  overflow:hidden;
+}
+
+.reveal-text{
+  font-weight:800;
+  font-size:34px;
+  letter-spacing:0.5px;
+  color:#fff;
+  text-align:left;
+  padding-left:8px;
+}
+
+.reveal-mask{
+  position:absolute; inset:0;
+  background:#000;
+  animation:reveal 1.8s ease forwards;
+  transform:translateX(0);
+}
+
+/* AWACS flies right -> left */
+.launch-awacs{
+  position:absolute;
+  top:20px;
+  width:min(70vw, 420px);
+  height:auto;
+  opacity:0.95;
+  right:-80vw;
+  animation:fly 1.8s ease-in-out forwards;
+  filter:drop-shadow(0 12px 28px rgba(0,0,0,.75));
+}
+
+
+@keyframes fly{
+  0% {
+    transform:translateX(0);
+    opacity:0;
+  }
+  10% {
+    opacity:1;
+  }
+  90% {
+    opacity:1;
+  }
+  100% {
+    transform:translateX(-160vw);
+    opacity:0;
+  }
+}
+
+
+/* Mask slides away to reveal the text */
+@keyframes reveal{
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(110%); }
+}
+
+/* respects iOS reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .launch-awacs, .reveal-mask{ animation:none !important; }
+  .launch-awacs{ opacity:0; }
+  .reveal-mask{ transform:translateX(110%); }
+}
+
+    
   </style>
 </head>
 
 <body>
+
+<div id="launch" class="launch">
+  <div class="launch-inner">
+    <div class="reveal-wrap">
+      <div class="reveal-text">E-3A Quick Planner</div>
+      <div class="reveal-mask"></div>
+    </div>
+
+    <img class="launch-awacs" src="assets/awacs.png" alt="AWACS">
+  </div>
+</div>
+
+  
   <div class="header">
     <div class="header-left">
       <img class="awacs-logo" src="./assets/awacs.png" alt="E-3A AWACS" />
@@ -897,5 +991,24 @@ for reference only`;
     });
   }
 </script>
+  <script>
+  // Launchscreen: run once per app start (you can switch to session-only if you want)
+  window.addEventListener("load", () => {
+    const el = document.getElementById("launch");
+    if (!el) return;
+
+    // Optional: only once per session
+    // if (sessionStorage.getItem("launchDone") === "1") { el.remove(); return; }
+    // sessionStorage.setItem("launchDone","1");
+
+    // Remove after animation
+    setTimeout(() => {
+      el.style.transition = "opacity .25s ease";
+      el.style.opacity = "0";
+      setTimeout(() => el.remove(), 260);
+    }, 1900);
+  });
+</script>
+
 </body>
 </html>
