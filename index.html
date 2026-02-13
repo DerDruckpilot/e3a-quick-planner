@@ -215,12 +215,18 @@
       <div style="height:10px"></div>
 
       <label>Total flight time (hh:mm)</label>
-      <input id="totalTime" type="text" value="01:30" placeholder="hh:mm">
+      <input id="totalTime" type="time" step="300" value="06:30" placeholder="hh:mm">
 
       <div style="height:10px"></div>
 
       <label>Ramp fuel (klbs) — used for max flight time mode</label>
-      <input id="rampFuelIn" type="number" min="0" step="0.1" placeholder="e.g. 60.0">
+      <input id="rampFuelIn" type="text"
+       inputmode="decimal"
+       pattern="[0-9]*[.,]?[0-9]*"
+       autocomplete="off"
+       autocorrect="off"
+       spellcheck="false"
+       placeholder="e.g. 110.0">
 
       <div class="divider"></div>
 
@@ -249,16 +255,22 @@
 
     <div class="card">
       <label>Orbit / holding time (hh:mm)</label>
-      <input id="orbitTime" type="text" value="00:00" placeholder="hh:mm">
+      <input id="orbitTime" type="time" step="300" value="00:00" placeholder="hh:mm">
 
       <label style="margin-top:10px;">Transition time (hh:mm)</label>
-      <input id="transTime" type="text" value="00:00" placeholder="hh:mm">
+      <input id="transTime" type="time" step="300" value="00:00" placeholder="hh:mm">
 
       <label style="margin-top:10px;">AAR time (hh:mm)</label>
-      <input id="aarTime" type="text" value="00:00" placeholder="hh:mm">
+      <input id="aarTime" type="time" step="300" value="00:00" placeholder="hh:mm">
 
       <label style="margin-top:10px;">Received fuel from tanker (klbs)</label>
-      <input id="aarRecv" type="number" min="0" step="0.1" value="0.0">
+      <input id="aarRecv" type="text"
+       inputmode="decimal"
+       pattern="[0-9]*[.,]?[0-9]*"
+       autocomplete="off"
+       autocorrect="off"
+       spellcheck="false"
+       placeholder="e.g. 12.0">
     </div>
 
     <div class="card">
@@ -333,16 +345,16 @@
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Wind direction (°)</label>
-          <input id="windDir" type="number" min="0" max="360" step="1" value="270">
+          <input id="windDir" type="text" inputmode="numeric" min="0" max="360" step="1" value="270">
         </div>
         <div>
           <label>Wind speed (kt)</label>
-          <input id="windSpd" type="number" min="0" step="1" value="15">
+          <input id="windSpd" type="text" inputmode="numeric" min="0" step="1" value="15">
         </div>
       </div>
 
       <label style="margin-top:10px;">Gust (kt) — optional</label>
-      <input id="windGust" type="number" min="0" step="1" placeholder="e.g. 25">
+      <input id="windGust" type="text" inputmode="numeric" min="0" step="1" placeholder="e.g. 25">
     </div>
 
     <div class="card">
@@ -423,6 +435,13 @@
   function fmt1(x){ return isFinite(x) ? x.toFixed(1) : "—"; }
   function setHTML(id, html){ $(id).innerHTML = html; }
   function setText(id, txt){ $(id).textContent = txt; }
+  function num(id){
+  const raw = ($(id).value || "").trim();
+  const normalized = raw.replace(",", ".");
+  const n = parseFloat(normalized);
+  return isFinite(n) ? n : 0;
+}
+
 
   // =========================
   // FUEL (unchanged)
@@ -580,7 +599,7 @@
 
     $("reqRampOut").textContent = fmt1(reqRamp) + " klbs";
 
-    const rampIn = Number($("rampFuelIn").value);
+    const rampIn = num("rampFuelIn");
     if (isFinite(rampIn) && $("rampFuelIn").value.trim() !== "") {
       const margin = rampIn - reqRamp;
       $("marginOut").innerHTML = `<span class="${margin >= 0 ? "ok" : "bad"}">${fmt1(margin)} klbs</span>`;
