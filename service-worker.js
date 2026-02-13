@@ -1,4 +1,4 @@
-const CACHE_NAME = "e3a-quick-planner-v2";
+const CACHE_NAME = "e3a-quick-planner-v3";
 const URLS = [
   "./",
   "./index.html",
