@@ -102,7 +102,7 @@
 }
 
 .reveal-wrap{
-  position:absolute; left:0; right:0; top:86px;
+  position:absolute; left:0; right:0; top:60px;
   height:48px;
   overflow:hidden;
 }
@@ -126,32 +126,31 @@
 /* AWACS flies right -> left */
 .launch-awacs{
   position:absolute;
-  top:20px;
-  width:min(70vw, 420px);
+  width:min(75vw, 460px);
   height:auto;
-  opacity:0.95;
-  right:-80vw;
-  animation:fly 1.8s ease-in-out forwards;
-  filter:drop-shadow(0 12px 28px rgba(0,0,0,.75));
+  bottom:-120px;                 /* startet etwas tiefer */
+  right:-90vw;                   /* startet außerhalb rechts */
+  opacity:0;
+  animation:flyIn 1.8s ease-out forwards;
+  filter:drop-shadow(0 14px 30px rgba(0,0,0,.8));
 }
 
 
-@keyframes fly{
+
+@keyframes flyIn{
   0% {
-    transform:translateX(0);
+    transform:translate(0, 0);
     opacity:0;
   }
-  10% {
-    opacity:1;
-  }
-  90% {
+  20% {
     opacity:1;
   }
   100% {
-    transform:translateX(-160vw);
-    opacity:0;
+    transform:translate(-55vw, -80px);
+    opacity:1;
   }
 }
+
 
 
 /* Mask slides away to reveal the text */
