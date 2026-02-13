@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E-3A AWACS quick planner</title>
+
+  <style>
+    :root{
+      --bg:#ffffff; --fg:#111111; --muted:rgba(0,0,0,.65);
+      --card:#ffffff; --border:#dddddd; --tab:#f2f2f2; --tabActive:#e6e6e6;
+      --inputBg:#ffffff; --ok:#16a34a; --warn:#f59e0b; --bad:#dc2626;
+      font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    body.dark{
+      --bg:#000000; --fg:#ffffff; --muted:rgba(255,255,255,.70);
+      --card:#0f0f0f; --border:#2a2a2a; --tab:#141414; --tabActive:#1f1f1f;
+      --inputBg:#0f0f0f;
+    }
+    body{ margin:14px; background:var(--bg); color:var(--fg); }
+
+    .header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:12px;
+    }
+    .header-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .awacs-logo{
+      height:38px; width:auto; display:block; opacity:0.95;
+    }
+    h1{ margin:0; font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .switch{ position:relative; width:52px; height:28px; flex:0 0 auto; }
+    .switch input{ display:none; }
+    .slider{ position:absolute; inset:0; background:var(--tab); border:1px solid var(--border); border-radius:999px; }
+    .slider:before{
+      content:""; position:absolute; width:22px; height:22px; top:2px; left:3px;
+      background:var(--card); border:1px solid var(--border); border-radius:999px; transition:.2s;
+    }
+    .switch input:checked + .slider:before{ transform:translateX(24px); }
+
+    .tabs{ display:flex; gap:8px; margin: 10px 0 12px; }
+    .tabbtn{
+      flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+      background:var(--tab); color:var(--fg); font-size:16px;
+    }
+    .tabbtn.active{ background:var(--tabActive); font-weight:800; }
+
+    .card{
+      border:1px solid var(--border); background:var(--card);
+      border-radius:14px; padding:12px; margin-bottom:12px;
+    }
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+    input, select{
+      width:100%; padding:10px; border-radius:12px; border:1px solid var(--border);
+      background:var(--inputBg); color:var(--fg); font-size:16px; box-sizing:border-box;
+    }
+    .row{ display:flex; gap:10px; }
+    .row > *{ flex:1; }
+    .chk{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+    .chk input{ width:auto; transform:scale(1.15); }
+    .divider{ border-top:1px dashed rgba(127,127,127,.25); margin:10px 0; }
+    table{ width:100%; border-collapse:collapse; margin-top:8px; }
+    td{ padding:6px 0; border-bottom:1px solid rgba(127,127,127,.15); }
+    td:last-child{ text-align:right; font-variant-numeric: tabular-nums; }
+    .sub td:first-child{ padding-left:18px; opacity:0.85; }
+    .kpi{ font-size:26px; font-weight:900; margin-top:6px; }
+    .mono{ font-variant-numeric:tabular-nums; }
+    .ok{ color:var(--ok); font-weight:900; }
+    .bad{ color:var(--bad); font-weight:900; }
+    .warn{ color:var(--warn); font-weight:900; }
+    .btnrow{ display:flex; gap:10px; margin-top:10px; }
+    button{
+      flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+      background:var(--tab); color:var(--fg); font-size:16px;
+    }
+    .disclaimer{ text-align:center; font-size:12px; color:var(--muted); margin:14px 0 4px; }
+    .hidden{ display:none; }
+
+    @media (max-width: 420px){
+      .awacs-logo{ height:34px; }
+      h1{ font-size:17px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-left">
+      <img class="awacs-logo" src="./assets/awacs.png" alt="E-3A AWACS" />
+      <h1>E-3A AWACS quick planner</h1>
+    </div>
+
+    <label class="switch" title="Light / Dark">
+      <input id="themeToggle" type="checkbox" />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="tabs">
+    <button id="tabFuel" class="tabbtn active">Fuel</button>
+    <button id="tabWind" class="tabbtn">Wind</button>
+  </div>
+
+  <!-- FUEL TAB -->
+  <div id="viewFuel">
+    <div class="card">
+      <label>Mode</label>
+      <select id="fuelMode">
+        <option value="time">Time → required ramp fuel</option>
+        <option value="fuel">Ramp fuel → max flight time</option>
+      </select>
+
+      <div style="height:10px"></div>
+
+      <label>Total flight time (hh:mm)</label>
+      <input id="totalTime" type="text" value="01:30" placeholder="hh:mm">
+
+      <div style="height:10px"></div>
+
+      <label>Ramp fuel (klbs) — used for max flight time mode</label>
+      <input id="rampFuelIn" type="number" min="0" step="0.1" placeholder="e.g. 60.0">
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div>
+          <label>Destination / FOB (diversion table)</label>
+          <select id="dest"></select>
+        </div>
+        <div>
+          <label>Alternate (DEST → ALT)</label>
+          <select id="alt"></select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Diversion time</label>
+          <input id="divTime" readonly>
+        </div>
+        <div>
+          <label>Diversion fuel</label>
+          <input id="divFuel" readonly>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Orbit / holding time (hh:mm)</label>
+      <input id="orbitTime" type="text" value="00:00" placeholder="hh:mm">
+
+      <label style="margin-top:10px;">Transition time (hh:mm)</label>
+      <input id="transTime" type="text" value="00:00" placeholder="hh:mm">
+
+      <label style="margin-top:10px;">AAR time (hh:mm)</label>
+      <input id="aarTime" type="text" value="00:00" placeholder="hh:mm">
+
+      <label style="margin-top:10px;">Received fuel from tanker (klbs)</label>
+      <input id="aarRecv" type="number" min="0" step="0.1" value="0.0">
+    </div>
+
+    <div class="card">
+      <div class="chk">
+        <input id="tripContOn" type="checkbox">
+        <label for="tripContOn" style="margin:0;color:var(--fg);font-size:14px;">Trip contingency 5%</label>
+      </div>
+      <div class="chk">
+        <input id="orbitContOn" type="checkbox">
+        <label for="orbitContOn" style="margin:0;color:var(--fg);font-size:14px;">Orbit contingency 3%</label>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="kpi" id="fuelKPI">—</div>
+
+      <table>
+        <tbody>
+          <tr><td>Taxi (fixed)</td><td class="mono" id="taxiOut">—</td></tr>
+          <tr><td>Minimum overhead DEST (fixed)</td><td class="mono" id="minOverOut">—</td></tr>
+          <tr><td>Diversion (DEST → ALT)</td><td class="mono" id="divFuelOut">—</td></tr>
+
+          <tr><td><b>Trip fuel (computed)</b></td><td class="mono"><b id="tripFuelOut">—</b></td></tr>
+
+          <tr class="sub"><td>Cruise</td><td class="mono" id="cruiseFuelOut">—</td></tr>
+          <tr class="sub"><td>Orbit / holding (12/hr)</td><td class="mono" id="orbitFuelOut">—</td></tr>
+          <tr class="sub"><td>Transition (15/hr)</td><td class="mono" id="transFuelOut">—</td></tr>
+          <tr class="sub"><td>AAR (16/hr)</td><td class="mono" id="aarFuelOut">—</td></tr>
+          <tr class="sub"><td>Trip contingency 5%</td><td class="mono" id="tripContOut">—</td></tr>
+          <tr class="sub"><td>Orbit contingency 3%</td><td class="mono" id="orbitContOut">—</td></tr>
+          <tr class="sub"><td>Received from tanker</td><td class="mono" id="recvOut">—</td></tr>
+
+          <tr><td><b>Required ramp fuel</b></td><td class="mono"><b id="reqRampOut">—</b></td></tr>
+          <tr><td>Margin vs entered ramp fuel</td><td class="mono" id="marginOut">—</td></tr>
+          <tr><td><b>Max flight time (from ramp fuel input)</b></td><td class="mono"><b id="maxTimeOut">—</b></td></tr>
+        </tbody>
+      </table>
+
+      <div class="btnrow">
+        <button id="copyFuelBtn">Copy fuel summary</button>
+        <button id="resetFuelBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">for reference only</div>
+  </div>
+
+  <!-- WIND TAB -->
+  <div id="viewWind" class="hidden">
+    <div class="card">
+      <label>Runway (e.g. 27, 09, 36)</label>
+      <input id="rwy" type="text" value="27" inputmode="numeric" placeholder="27">
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Operation</label>
+          <select id="op">
+            <option value="TAKEOFF">Takeoff</option>
+            <option value="LANDING" selected>Landing</option>
+            <option value="TNG_DRY">Touch &amp; Go (Dry)</option>
+            <option value="TNG_WET">Touch &amp; Go (Wet)</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <div class="chk" style="margin:0;">
+            <input id="firstPilot" type="checkbox">
+            <label for="firstPilot" style="margin:0;color:var(--fg);font-size:14px;">First pilot (LDG XW limit 15 kt)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Wind direction (°)</label>
+          <input id="windDir" type="number" min="0" max="360" step="1" value="270">
+        </div>
+        <div>
+          <label>Wind speed (kt)</label>
+          <input id="windSpd" type="number" min="0" step="1" value="15">
+        </div>
+      </div>
+
+      <label style="margin-top:10px;">Gust (kt) — optional</label>
+      <input id="windGust" type="number" min="0" step="1" placeholder="e.g. 25">
+    </div>
+
+    <div class="card">
+      <div class="kpi" id="windStatus">—</div>
+
+      <table>
+        <tbody>
+          <tr><td>Runway heading</td><td class="mono" id="rwyHdgOut">—</td></tr>
+          <tr><td>Angle (Δ)</td><td class="mono" id="deltaOut">—</td></tr>
+
+          <tr><td>Head/Tailwind</td><td class="mono" id="htOut">—</td></tr>
+          <tr><td>Crosswind</td><td class="mono" id="xwOut">—</td></tr>
+
+          <tr><td>Active limits</td><td class="mono" id="limitsOut">—</td></tr>
+          <tr><td>Margin to nearest limit</td><td class="mono" id="marginWindOut">—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <label>Quick reference (steady only)</label>
+      <table>
+        <tbody>
+          <tr><td id="qrA_lbl">—</td><td class="mono" id="qrA">—</td></tr>
+          <tr><td id="qrB_lbl">—</td><td class="mono" id="qrB">—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="btnrow">
+        <button id="copyWindBtn">Copy wind summary</button>
+        <button id="resetWindBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">for reference only</div>
+  </div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // THEME
+  const savedTheme = localStorage.getItem("e3a_theme");
+  if (savedTheme === "dark") { document.body.classList.add("dark"); $("themeToggle").checked = true; }
+  $("themeToggle").addEventListener("change", () => {
+    document.body.classList.toggle("dark", $("themeToggle").checked);
+    localStorage.setItem("e3a_theme", $("themeToggle").checked ? "dark" : "light");
+  });
+
+  // TABS
+  function setTab(which){
+    const fuel = which === "fuel";
+    $("tabFuel").classList.toggle("active", fuel);
+    $("tabWind").classList.toggle("active", !fuel);
+    $("viewFuel").classList.toggle("hidden", !fuel);
+    $("viewWind").classList.toggle("hidden", fuel);
+  }
+  $("tabFuel").addEventListener("click", () => setTab("fuel"));
+  $("tabWind").addEventListener("click", () => setTab("wind"));
+
+  // HELPERS
+  function parseHHMM(s){
+    if (!s) return NaN;
+    const t = String(s).trim();
+    const m = t.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+    if (!m) return NaN;
+    const hh = Number(m[1]), mm = Number(m[2]);
+    if (!isFinite(hh) || !isFinite(mm) || mm < 0 || mm >= 60 || hh < 0) return NaN;
+    return hh + mm/60.0;
+  }
+  function hhmmFromHours(h){
+    if (!isFinite(h) || h < 0) return "—";
+    const totalMin = Math.max(0, Math.round(h * 60));
+    const hh = Math.floor(totalMin / 60);
+    const mm = totalMin % 60;
+    return String(hh).padStart(2,"0") + ":" + String(mm).padStart(2,"0");
+  }
+  function fmt1(x){ return isFinite(x) ? x.toFixed(1) : "—"; }
+  function setHTML(id, html){ $(id).innerHTML = html; }
+  function setText(id, txt){ $(id).textContent = txt; }
+
+  // =========================
+  // FUEL (unchanged)
+  // =========================
+  const TAXI = 1.8;
+  const MIN_OVERHEAD_DEST = 14.0;
+
+  const TABLES = {
+    "MOB Geilenkirchen": [
+      { alt:"Norvenich (ETNN)", time:"0:06", fuel:1.0 },
+      { alt:"Eindhoven (EHEH)", time:"0:10", fuel:1.8 },
+      { alt:"Köln/Bonn (EDDK)", time:"0:10", fuel:2.4 },
+      { alt:"Brussels (EBBR)", time:"0:17", fuel:2.9 },
+      { alt:"Spangdahlem (ETAD)", time:"0:18", fuel:3.7 },
+      { alt:"Ramstein (ETAR)", time:"0:29", fuel:7.1 },
+      { alt:"Mildenhall (EGUN)", time:"0:40", fuel:10.5 },
+      { alt:"Waddington (EGXW)", time:"0:45", fuel:11.2 },
+      { alt:"Karup (EKKA)", time:"0:52", fuel:13.0 },
+    ],
+    "FOB Konya": [
+      { alt:"Afyon (LTAH)", time:"0:19", fuel:6.4 },
+      { alt:"Antalya (LTAI)", time:"0:21", fuel:6.8 },
+      { alt:"Esenboga (LTAC)", time:"0:23", fuel:7.0 },
+      { alt:"Incirlik (LTAG)", time:"0:28", fuel:8.2 },
+      { alt:"Cigli (LTBL)", time:"0:43", fuel:11.0 },
+      { alt:"Diyarbakir (LTCC)", time:"1:01", fuel:14.2 },
+    ],
+    "FOB Aktion": [
+      { alt:"Andravida (LGAD)", time:"0:10", fuel:3.6 },
+      { alt:"Araxos (LGRX)", time:"0:19", fuel:4.4 },
+      { alt:"Larissa (LGLR)", time:"0:27", fuel:4.4 },
+      { alt:"Thessaloniki (LGTS)", time:"0:25", fuel:7.3 },
+      { alt:"Souda Bay (LGSA)", time:"0:41", fuel:10.6 },
+      { alt:"Trapani (LICT)", time:"0:58", fuel:14.5 },
+    ],
+    "FOL Oerland": [
+      { alt:"Trondheim/Vaernes (ENVA)", time:"0:13", fuel:2.4 },
+      { alt:"Gardermoen (ENGM)", time:"0:33", fuel:9.0 },
+      { alt:"Rygge (ENRY)", time:"0:42", fuel:11.0 },
+      { alt:"Bergen (ENBR)", time:"0:38", fuel:9.5 },
+      { alt:"Bodo (ENBO)", time:"0:39", fuel:9.6 },
+      { alt:"Torp (ENTO)", time:"0:44", fuel:11.0 },
+      { alt:"Andoya (ENAN)", time:"0:56", fuel:13.9 },
+      { alt:"Stavanger/Sola (ENZV)", time:"0:51", fuel:12.0 },
+      { alt:"Evenes (ENEV)", time:"0:53", fuel:12.6 },
+    ],
+    "RAF Waddington": [
+      { alt:"Mildenhall (EGUN)", time:"0:15", fuel:3.5 },
+      { alt:"Brize Norton (EGVN)", time:"0:17", fuel:5.0 },
+      { alt:"Leuchars (EGQL)", time:"0:33", fuel:8.2 },
+      { alt:"Lossiemouth (EGQS)", time:"0:45", fuel:11.5 },
+      { alt:"Keflavik (BIKF)", time:"2:45", fuel:35.3 },
+    ],
+    "FOB Trapani": [
+      { alt:"Sigonella (LICZ)", time:"0:22", fuel:7.0 },
+      { alt:"Decimomannu (LIED)", time:"0:29", fuel:8.0 },
+      { alt:"Gioia del Colle (LIBV)", time:"0:46", fuel:11.5 },
+      { alt:"Brindisi-Casale (LIBR)", time:"0:55", fuel:14.0 },
+      { alt:"Pisa (LIRP)", time:"0:56", fuel:14.5 },
+      { alt:"Aktion (LGPZ)", time:"1:02", fuel:15.2 },
+      { alt:"Aviano (LIPA)", time:"1:18", fuel:18.2 },
+    ],
+    "Keflavik International": [
+      { alt:"Lossiemouth (EGQS)", time:"1:54", fuel:25.0 },
+      { alt:"Leuchars (EGQL)", time:"2:09", fuel:28.0 },
+      { alt:"Oerland (ENOL)", time:"2:10", fuel:28.8 },
+      { alt:"Stavanger (ENZV)", time:"2:12", fuel:29.0 },
+      { alt:"Waddington (EGXW)", time:"2:41", fuel:35.2 },
+    ],
+  };
+
+  function populateDest(){
+    $("dest").innerHTML = "";
+    Object.keys(TABLES).forEach(k => {
+      const o = document.createElement("option");
+      o.value = k; o.textContent = k;
+      $("dest").appendChild(o);
+    });
+  }
+  function populateAlt(){
+    const d = $("dest").value;
+    $("alt").innerHTML = "";
+    TABLES[d].forEach((r, idx) => {
+      const o = document.createElement("option");
+      o.value = String(idx);
+      o.textContent = r.alt;
+      $("alt").appendChild(o);
+    });
+  }
+  function setDivFields(){
+    const d = $("dest").value;
+    const idx = Number($("alt").value || 0);
+    const r = TABLES[d][idx];
+    $("divTime").value = r.time;
+    $("divFuel").value = fmt1(r.fuel) + " klbs";
+  }
+
+  function calcFuel(){
+    const mode = $("fuelMode").value;
+
+    const totalH = parseHHMM($("totalTime").value);
+    const orbitH_in = Math.max(0, parseHHMM($("orbitTime").value) || 0);
+    const transH_in = Math.max(0, parseHHMM($("transTime").value) || 0);
+    const aarH_in   = Math.max(0, parseHHMM($("aarTime").value) || 0);
+    const recv      = Math.max(0, Number($("aarRecv").value || 0));
+
+    const d = $("dest").value;
+    const idx = Number($("alt").value || 0);
+    const divertFuel = TABLES[d][idx].fuel;
+
+    if (!isFinite(totalH) || totalH < 0) { $("fuelKPI").textContent = "—"; return; }
+
+    const firstH = Math.min(2.0, totalH);
+    const postH  = Math.max(0.0, totalH - 2.0);
+
+    let orbitH = 0, transH = 0, aarH = 0;
+    if (postH > 0) {
+      const sum = orbitH_in + transH_in + aarH_in;
+      if (sum > postH && sum > 0) {
+        const sf = postH / sum;
+        orbitH = orbitH_in * sf;
+        transH = transH_in * sf;
+        aarH   = aarH_in   * sf;
+      } else {
+        orbitH = orbitH_in; transH = transH_in; aarH = aarH_in;
+      }
+    }
+
+    const specialSum = orbitH + transH + aarH;
+    const cruisePostH = Math.max(0.0, postH - specialSum);
+
+    const cruiseFuel = (firstH * 20.0) + (cruisePostH * 12.0);
+    const orbitFuel  = orbitH * 12.0;
+    const transFuel  = transH * 15.0;
+    const aarFuel    = aarH   * 16.0;
+
+    const tripCont = $("tripContOn").checked ? ((cruiseFuel + orbitFuel + transFuel + aarFuel) * 0.05) : 0.0;
+    const orbitCont = $("orbitContOn").checked ? (orbitFuel * 0.03) : 0.0;
+
+    const tripComputed = cruiseFuel + orbitFuel + transFuel + aarFuel + tripCont + orbitCont - recv;
+    const reqRamp = TAXI + MIN_OVERHEAD_DEST + divertFuel + tripComputed;
+
+    $("taxiOut").textContent = fmt1(TAXI) + " klbs";
+    $("minOverOut").textContent = fmt1(MIN_OVERHEAD_DEST) + " klbs";
+    $("divFuelOut").textContent = fmt1(divertFuel) + " klbs";
+
+    $("tripFuelOut").textContent = fmt1(tripComputed) + " klbs";
+    $("cruiseFuelOut").textContent = fmt1(cruiseFuel) + " klbs";
+    $("orbitFuelOut").textContent = fmt1(orbitFuel) + " klbs";
+    $("transFuelOut").textContent = fmt1(transFuel) + " klbs";
+    $("aarFuelOut").textContent = fmt1(aarFuel) + " klbs";
+    $("tripContOut").textContent = fmt1(tripCont) + " klbs";
+    $("orbitContOut").textContent = fmt1(orbitCont) + " klbs";
+    $("recvOut").textContent = "-" + fmt1(recv) + " klbs";
+
+    $("reqRampOut").textContent = fmt1(reqRamp) + " klbs";
+
+    const rampIn = Number($("rampFuelIn").value);
+    if (isFinite(rampIn) && $("rampFuelIn").value.trim() !== "") {
+      const margin = rampIn - reqRamp;
+      $("marginOut").innerHTML = `<span class="${margin >= 0 ? "ok" : "bad"}">${fmt1(margin)} klbs</span>`;
+    } else {
+      $("marginOut").textContent = "—";
+    }
+
+    let maxTime = "—";
+    if (isFinite(rampIn) && $("rampFuelIn").value.trim() !== "") {
+      const fixed = TAXI + MIN_OVERHEAD_DEST + divertFuel;
+      const availableTrip = rampIn - fixed + recv;
+
+      if (availableTrip <= 0) {
+        maxTime = "00:00";
+      } else {
+        let bestMin = 0;
+        for (let m = 0; m <= 20*60; m++) {
+          const tH = m/60;
+          const first = Math.min(2.0, tH);
+          const post = Math.max(0.0, tH - 2.0);
+
+          let oH=0,tHh=0,aH=0;
+          if (post > 0) {
+            const sum = orbitH_in + transH_in + aarH_in;
+            if (sum > post && sum > 0) {
+              const sf = post / sum;
+              oH = orbitH_in*sf; tHh = transH_in*sf; aH = aarH_in*sf;
+            } else {
+              oH = orbitH_in; tHh = transH_in; aH = aarH_in;
+            }
+          }
+          const special = oH + tHh + aH;
+          const cruisePost = Math.max(0.0, post - special);
+
+          const cFuel = (first*20.0) + (cruisePost*12.0);
+          const oFuel = oH*12.0;
+          const trFuel = tHh*15.0;
+          const aaFuel = aH*16.0;
+
+          const tc = $("tripContOn").checked ? ((cFuel+oFuel+trFuel+aaFuel)*0.05) : 0;
+          const oc = $("orbitContOn").checked ? (oFuel*0.03) : 0;
+
+          const tripComp = cFuel+oFuel+trFuel+aaFuel+tc+oc - recv;
+
+          if (tripComp <= availableTrip + 1e-9) bestMin = m;
+          else break;
+        }
+        maxTime = hhmmFromHours(bestMin/60);
+      }
+    }
+    $("maxTimeOut").textContent = maxTime;
+
+    $("fuelKPI").textContent =
+      (mode === "time")
+        ? (fmt1(reqRamp) + " klbs required ramp")
+        : ("Max flight time: " + maxTime);
+  }
+
+  async function copyFuel(){
+    const d = $("dest").value;
+    const idx = Number($("alt").value || 0);
+    const alt = TABLES[d][idx].alt;
+
+    const text =
+`E-3A Fuel (klbs)
+Mode: ${$("fuelMode").selectedOptions[0].textContent}
+
+Total time: ${$("totalTime").value}
+Orbit: ${$("orbitTime").value}
+Transition: ${$("transTime").value}
+AAR: ${$("aarTime").value}
+Received: ${$("aarRecv").value} klbs
+
+Destination: ${d}
+Alternate: ${alt}
+Diversion: ${$("divFuel").value}
+
+Trip fuel (computed): ${$("tripFuelOut").textContent}
+  Cruise: ${$("cruiseFuelOut").textContent}
+  Orbit (12/hr): ${$("orbitFuelOut").textContent}
+  Transition (15/hr): ${$("transFuelOut").textContent}
+  AAR (16/hr): ${$("aarFuelOut").textContent}
+  Trip cont 5%: ${$("tripContOut").textContent}
+  Orbit cont 3%: ${$("orbitContOut").textContent}
+  Received: ${$("recvOut").textContent}
+
+Required ramp fuel: ${$("reqRampOut").textContent}
+Max flight time: ${$("maxTimeOut").textContent}
+
+for reference only`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      $("copyFuelBtn").textContent = "Copied ✓";
+      setTimeout(()=> $("copyFuelBtn").textContent = "Copy fuel summary", 1200);
+    } catch (e) {
+      alert("Clipboard not allowed.\n\n" + text);
+    }
+  }
+
+  function resetFuel(){
+    $("fuelMode").value = "time";
+    $("totalTime").value = "01:30";
+    $("rampFuelIn").value = "";
+    $("orbitTime").value = "00:00";
+    $("transTime").value = "00:00";
+    $("aarTime").value = "00:00";
+    $("aarRecv").value = "0.0";
+    $("tripContOn").checked = false;
+    $("orbitContOn").checked = false;
+
+    $("dest").value = Object.keys(TABLES)[0];
+    populateAlt();
+    $("alt").value = "0";
+    setDivFields();
+    calcFuel();
+  }
+
+  populateDest();
+  populateAlt();
+  setDivFields();
+
+  $("dest").addEventListener("change", ()=>{ populateAlt(); $("alt").value="0"; setDivFields(); calcFuel(); });
+  $("alt").addEventListener("change", ()=>{ setDivFields(); calcFuel(); });
+
+  ["fuelMode","totalTime","rampFuelIn","orbitTime","transTime","aarTime","aarRecv"].forEach(id=>{
+    $(id).addEventListener("input", calcFuel);
+    $(id).addEventListener("change", calcFuel);
+  });
+  ["tripContOn","orbitContOn"].forEach(id => $(id).addEventListener("change", calcFuel));
+
+  $("copyFuelBtn").addEventListener("click", copyFuel);
+  $("resetFuelBtn").addEventListener("click", resetFuel);
+
+  // =========================
+  // WIND (fixed)
+  // =========================
+  function norm360(x){
+    let a = Number(x);
+    if (!isFinite(a)) return NaN;
+    a = a % 360;
+    if (a < 0) a += 360;
+    return a;
+  }
+  function norm180(a){
+    let x = ((a + 180) % 360) - 180;
+    if (x < -180) x += 360;
+    return x;
+  }
+  function parseRunwayHeading(rwyText){
+    const m = String(rwyText || "").trim().match(/(\d{1,2})/);
+    if (!m) return NaN;
+    const n = Number(m[1]);
+    if (!isFinite(n) || n < 1 || n > 36) return NaN;
+    return (n === 36) ? 360 : n * 10;
+  }
+  function fmtDirSpd(dir, spd){
+    const d = Math.round(norm360(dir));
+    const s = Math.round(spd);
+    return `${String(d).padStart(3,"0")}/${s} kt`;
+  }
+
+  function windLimits(op, firstPilot){
+    let xw = 25;
+    if (op === "TNG_DRY") xw = 15;
+    if (op === "TNG_WET") xw = 10;
+    if (op === "LANDING" && firstPilot) xw = Math.min(xw, 15);
+    return { xwLim: xw, twLim: 10, maxLim: 50 };
+  }
+
+  function componentsFor(speed, windDir, rwyHdg){
+    const w = norm360(windDir);
+    const r = norm360(rwyHdg === 360 ? 0 : rwyHdg);
+    const signedDelta = norm180(w - r);
+    const absDelta = Math.abs(signedDelta);
+    const rad = absDelta * Math.PI / 180;
+
+    const htMag = speed * Math.abs(Math.cos(rad));
+    const crossMag = speed * Math.sin(rad);
+
+    const isHead = absDelta <= 90;
+    const ht = isHead ? htMag : -htMag;
+
+    const xwSigned = (signedDelta >= 0 ? crossMag : -crossMag);
+    return { signedDelta, absDelta, ht, xwAbs: Math.abs(xwSigned), xwSide: (xwSigned >= 0 ? "R" : "L") };
+  }
+
+  function violations(speed, comp, lim){
+    const tail = comp.ht < 0 ? -comp.ht : 0;
+    const vXW = comp.xwAbs > lim.xwLim + 1e-9;
+    const vTW = tail > lim.twLim + 1e-9;
+    const vMax = speed > lim.maxLim + 1e-9;
+    const ok = !(vXW || vTW || vMax);
+    const margins = [lim.maxLim - speed, lim.xwLim - comp.xwAbs];
+    if (comp.ht < 0) margins.push(lim.twLim - tail);
+    return { ok, tail, vXW, vTW, vMax, minMargin: Math.min(...margins) };
+  }
+
+  function maxAllowedSpeedSameAngle(comp, lim){
+    const rad = comp.absDelta * Math.PI/180;
+    const sinv = Math.sin(rad);
+    const cosAbs = Math.abs(Math.cos(rad));
+
+    let vmax = lim.maxLim;
+    if (sinv > 1e-9) vmax = Math.min(vmax, lim.xwLim / sinv);
+    if (comp.absDelta > 90 && cosAbs > 1e-9) vmax = Math.min(vmax, lim.twLim / cosAbs);
+    return vmax;
+  }
+
+  function nearestDirAtSameSpeedInt(speed, windDir, rwy, lim, wantInLimits){
+    // Scan integer wind directions (steady-only) and pick the closest that is in/out of limits.
+    // This avoids rounding artifacts (e.g., 210.4° → 210°) producing the same suggestion as the input.
+    const base = norm360(windDir);
+    const r = (rwy === 360 ? 0 : rwy);
+    let bestDir = null;
+    let bestDiff = Infinity;
+    let bestMargin = -Infinity;
+
+    for (let dir = 0; dir < 360; dir++){
+      const comp = componentsFor(speed, dir, rwy);
+      const vio = violations(speed, comp, lim);
+      const isIn = vio.ok;
+      if (wantInLimits ? isIn : !isIn){
+        let diff = Math.abs(norm180(dir - base));
+        // Prefer not returning exactly the input heading when looking for "just in limits"
+        if (wantInLimits && diff < 0.5) continue;
+
+        // Use minMargin as a tie-breaker (prefer "just in" near the boundary, or "just out" near the boundary)
+        const margin = vio.minMargin;
+        const boundaryScore = -Math.abs(margin); // closer to 0 is better
+        if (diff < bestDiff - 1e-9){
+          bestDiff = diff;
+          bestDir = dir;
+          bestMargin = boundaryScore;
+        } else if (Math.abs(diff - bestDiff) <= 1e-9){
+          if (boundaryScore > bestMargin){
+            bestDir = dir;
+            bestMargin = boundaryScore;
+          }
+        }
+      }
+    }
+    return bestDir;
+  }
+
+  function calcWind(){
+    const rwy = parseRunwayHeading($("rwy").value);
+    const op = $("op").value;
+    const firstPilot = $("firstPilot").checked;
+
+    const wdir = norm360($("windDir").value);
+    const wspd = Number($("windSpd").value);
+    const gustIn = $("windGust").value.trim();
+    const gust = gustIn === "" ? NaN : Number(gustIn);
+
+    if (!isFinite(rwy) || !isFinite(wdir) || !isFinite(wspd) || wspd < 0) {
+      setText("windStatus","—");
+      ["rwyHdgOut","deltaOut","htOut","xwOut","limitsOut","marginWindOut","qrA_lbl","qrA","qrB_lbl","qrB"].forEach(id=>setText(id,"—"));
+      return;
+    }
+
+    const lim = windLimits(op, firstPilot);
+
+    const compS = componentsFor(wspd, wdir, rwy);
+    const vioS = violations(wspd, compS, lim);
+
+    const hasGust = isFinite(gust) && gust >= 0;
+    const gustSpd = hasGust ? gust : NaN;
+    const compG = hasGust ? componentsFor(gustSpd, wdir, rwy) : null;
+    const vioG = hasGust ? violations(gustSpd, compG, lim) : null;
+
+    const okAll = vioS.ok && (!hasGust || vioG.ok);
+
+    const steadyCaution = vioS.minMargin >= 0 && vioS.minMargin < 5;
+    const gustCaution = hasGust ? (vioG.minMargin >= 0 && vioG.minMargin < 5) : false;
+
+    let statusTxt = "OK", statusClass = "ok";
+    if (!okAll) { statusTxt = "NO-GO"; statusClass = "bad"; }
+    else if (steadyCaution || gustCaution) { statusTxt = "CAUTION"; statusClass = "warn"; }
+
+    setHTML("windStatus", `<span class="${statusClass}">${statusTxt}</span>`);
+
+    setText("rwyHdgOut", (rwy === 360 ? "360°" : `${String(rwy).padStart(3,"0")}°`));
+    setText("deltaOut", `${compS.absDelta.toFixed(0)}°`);
+
+    // Per-row coloring rules:
+    // - Base value red if that row's *steady* limit is exceeded (plus max-wind where relevant).
+    // - Gust value red only if gust violates that row's limit (plus max-wind where relevant).
+    // - If BOTH steady and gust are out of limits, whole row red anyway (via base red + gust red).
+    const htBaseBad = (vioS.vTW || vioS.vMax);
+    const xwBaseBad = (vioS.vXW || vioS.vMax);
+
+    const htLabelS = compS.ht >= 0 ? `HW ${Math.abs(compS.ht).toFixed(1)} kt` : `TW ${Math.abs(compS.ht).toFixed(1)} kt`;
+    let htG_html = "";
+    if (hasGust){
+      const htLabelG = `Gust ${Math.abs(compG.ht).toFixed(1)} kt`;
+      const htG_bad = (vioG.vTW || vioG.vMax);  // do NOT mark red just because crosswind is exceeded
+      htG_html = ` • <span class="${htG_bad ? "bad" : ""}">${htLabelG}</span>`;
+    }
+    setHTML("htOut", `<span class="${htBaseBad ? "bad" : ""}">${htLabelS}</span>${htG_html}`);
+
+    const xwLabelS = `XW ${compS.xwAbs.toFixed(1)} kt (${compS.xwSide})`;
+    let xwG_html = "";
+    if (hasGust){
+      const xwLabelG = `Gust ${compG.xwAbs.toFixed(1)} kt`;
+      const xwG_bad = (vioG.vXW || vioG.vMax);
+      xwG_html = ` • <span class="${xwG_bad ? "bad" : ""}">${xwLabelG}</span>`;
+    }
+    setHTML("xwOut", `<span class="${xwBaseBad ? "bad" : ""}">${xwLabelS}</span>${xwG_html}`);
+
+    const opLabel = (op==="TNG_DRY"?"TNG Dry":op==="TNG_WET"?"TNG Wet":op==="LANDING"?"Landing":"Takeoff");
+    setText("limitsOut", `XW ≤ ${lim.xwLim} | TW ≤ ${lim.twLim} | Max ≤ ${lim.maxLim} (${opLabel})`);
+
+    function nearestLabel(vio, speed, comp){
+      const parts = [];
+      parts.push({k:"Max wind", v: lim.maxLim - speed});
+      parts.push({k:"Crosswind", v: lim.xwLim - comp.xwAbs});
+      if (comp.ht < 0) parts.push({k:"Tailwind", v: lim.twLim - vio.tail});
+      parts.sort((a,b)=>a.v-b.v);
+      return parts[0];
+    }
+    const nearS = nearestLabel(vioS, wspd, compS);
+    let marginHtml = `${nearS.k}: ${nearS.v.toFixed(1)} kt`;
+    if (nearS.v < 0) marginHtml = `<span class="bad">${marginHtml}</span>`;
+    else if (nearS.v < 5) marginHtml = `<span class="warn">${marginHtml}</span>`;
+    if (hasGust){
+      const nearG = nearestLabel(vioG, gustSpd, compG);
+      let g = `${nearG.k} (Gust): ${nearG.v.toFixed(1)} kt`;
+      if (nearG.v < 0) g = `<span class="bad">${g}</span>`;
+      else if (nearG.v < 5) g = `<span class="warn">${g}</span>`;
+      marginHtml += `<br>${g}`;
+    }
+    setHTML("marginWindOut", marginHtml);
+
+    // Quick reference is ALWAYS steady-only
+    const vAllowSameAngle = maxAllowedSpeedSameAngle(compS, lim);
+
+    if (!vioS.ok){
+      $("qrA_lbl").textContent = "Just in limits (same angle):";
+      $("qrB_lbl").textContent = "Just in limits (same speed):";
+
+      const vIn = Math.max(0, Math.floor(vAllowSameAngle));
+      setText("qrA", fmtDirSpd(wdir, vIn));
+
+      const dirIn = nearestDirAtSameSpeedInt(wspd, wdir, rwy, lim, true);
+      setText("qrB", (dirIn != null ? fmtDirSpd(dirIn, wspd) : "—"));
+    } else {
+      $("qrA_lbl").textContent = "Just out of limits (same angle):";
+      $("qrB_lbl").textContent = "Just out of limits (same speed):";
+
+      // Fix: smallest integer speed that is OUT of limits (at same angle) is floor(vAllow)+1
+      const vOut = Math.max(0, Math.floor(vAllowSameAngle) + 1);
+      setText("qrA", fmtDirSpd(wdir, vOut));
+
+      const dirOut = nearestDirAtSameSpeedInt(wspd, wdir, rwy, lim, false);
+      setText("qrB", (dirOut != null ? fmtDirSpd(dirOut, wspd) : "—"));
+    }
+  }
+
+  async function copyWind(){
+    const rwy = parseRunwayHeading($("rwy").value);
+    const op = $("op").selectedOptions[0].textContent;
+    const fp = $("firstPilot").checked ? "Yes" : "No";
+
+    const wdir = norm360($("windDir").value);
+    const wspd = Number($("windSpd").value);
+    const gustIn = $("windGust").value.trim();
+
+    const text =
+`E-3A Wind
+RWY: ${$("rwy").value} (${isFinite(rwy)?String(rwy).padStart(3,"0")+"°":"—"})
+Operation: ${op}
+First pilot: ${fp}
+
+Wind: ${fmtDirSpd(wdir, wspd)}${gustIn!=="" ? " G"+Math.round(Number(gustIn)) : ""}
+
+Result: ${$("windStatus").textContent}
+Head/Tail: ${$("htOut").textContent}
+Crosswind: ${$("xwOut").textContent}
+Limits: ${$("limitsOut").textContent}
+
+for reference only`;
+
+    try{
+      await navigator.clipboard.writeText(text);
+      $("copyWindBtn").textContent = "Copied ✓";
+      setTimeout(()=> $("copyWindBtn").textContent = "Copy wind summary", 1200);
+    }catch(e){
+      alert("Clipboard not allowed.\n\n" + text);
+    }
+  }
+
+  function resetWind(){
+    $("rwy").value = "27";
+    $("op").value = "LANDING";
+    $("firstPilot").checked = false;
+    $("windDir").value = "270";
+    $("windSpd").value = "15";
+    $("windGust").value = "";
+    calcWind();
+  }
+
+  ["rwy","op","firstPilot","windDir","windSpd","windGust"].forEach(id=>{
+    $(id).addEventListener("input", calcWind);
+    $(id).addEventListener("change", calcWind);
+  });
+  $("copyWindBtn").addEventListener("click", copyWind);
+  $("resetWindBtn").addEventListener("click", resetWind);
+
+  // INIT
+  calcFuel();
+  resetWind();
+  setTab("fuel");
+})();
+</script>
+</body>
+</html>
