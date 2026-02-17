@@ -229,6 +229,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   white-space:nowrap;
 }
 
+
+    .prefixWrap{ display:flex; align-items:center; gap:8px; }
+    .prefixFixed{ padding:10px 10px; border-radius:12px; border:1px solid var(--border); background:var(--tab); font-weight:800; }
+    .mutedSmall{ font-size:12px; color:var(--muted); margin-top:6px; }
+    .planTable{ width:100%; border-collapse:collapse; }
+    .planTable th{ font-size:12px; color:var(--muted); font-weight:700; padding:6px 0; border-bottom:1px solid rgba(127,127,127,.15); }
+    .planTable td{ padding:8px 0; border-bottom:1px solid rgba(127,127,127,.12); vertical-align:middle; }
+    .planTable td input{ margin:0; }
+    .timeZ{ text-align:right; }
+
 </style>
 </head>
  
@@ -462,18 +472,22 @@ input[type="time"]::-webkit-calendar-picker-indicator {
       <div class="row">
         <div>
           <label>MSN #</label>
-          <input id="msn_msn" type="text" autocomplete="off" spellcheck="false">
+          <input id="msn_msn" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
         </div>
         <div>
           <label>Callsign</label>
-          <input id="msn_callsign" type="text" autocomplete="off" spellcheck="false">
+          <div class="prefixWrap">
+            <span class="prefixFixed">NATO</span>
+            <input id="msn_callsign_num" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false" placeholder="01">
+          </div>
+          <div class="mutedSmall" id="msn_callsign_full">NATO</div>
         </div>
       </div>
 
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Tail</label>
-          <input id="msn_tail" type="text" autocomplete="off" spellcheck="false">
+          <input id="msn_tail" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false">
         </div>
         <div>
           <label>POB</label>
@@ -483,92 +497,102 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
       <div class="row" style="margin-top:10px;">
         <div>
+          <label>Spare</label>
+          <input id="msn_spare" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
           <label>Orbit</label>
           <input id="msn_orbit" type="text" autocomplete="off" spellcheck="false">
         </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
         <div>
           <label>Parking</label>
           <input id="msn_parking" type="text" autocomplete="off" spellcheck="false">
         </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
         <div>
           <label>Status</label>
           <input id="msn_status" type="text" autocomplete="off" spellcheck="false">
         </div>
-        <div>
-          <label>Spare</label>
-          <input id="msn_spare" type="text" autocomplete="off" spellcheck="false">
-        </div>
       </div>
 
       <label style="margin-top:10px;">Alternate</label>
-      <input id="msn_alternate" type="text" autocomplete="off" spellcheck="false">
-    </div>
-
-    <div class="card">
-      <label>Timeline (local)</label>
-
-      <div class="row" style="margin-top:10px;">
-        <div><label>SHOW</label><input id="msn_show" type="time" step="60"></div>
-        <div><label>BUS 1</label><input id="msn_bus1" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>BUS 2</label><input id="msn_bus2" type="time" step="60"></div>
-        <div><label>B4 START</label><input id="msn_b4start" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>DOOR CLOSE</label><input id="msn_doorclose" type="time" step="60"></div>
-        <div><label>ENG START</label><input id="msn_engstart" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>DE-ICE</label><input id="msn_deice" type="time" step="60"></div>
-        <div><label>TAKEOFF</label><input id="msn_takeoff" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>T/O</label><input id="msn_to" type="time" step="60"></div>
-        <div><label>LAND</label><input id="msn_land" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>ON/S</label><input id="msn_ons" type="time" step="60"></div>
-        <div><label>OFF/S</label><input id="msn_offs" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>AR START</label><input id="msn_arstart" type="time" step="60"></div>
-        <div><label>AR END</label><input id="msn_arend" type="time" step="60"></div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <div><label>TX START</label><input id="msn_txstart" type="time" step="60"></div>
-        <div><label>TX END</label><input id="msn_txend" type="time" step="60"></div>
+      <select id="msn_altSel"></select>
+      <div id="msn_altOtherWrap" class="hidden" style="margin-top:10px;">
+        <label>Alternate (other)</label>
+        <input id="msn_altOther" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. EDDK">
       </div>
     </div>
 
     <div class="card">
-      <label>Contacts (local)</label>
-      <label style="margin-top:10px;">Orders / CMD Post</label>
-      <input id="msn_orders_email" type="email" autocomplete="off" spellcheck="false" value="name1@naew.nato.int">
-      <label style="margin-top:10px;">ORM / Safety</label>
-      <input id="msn_orm_email" type="email" autocomplete="off" spellcheck="false" value="name2@naew.nato.int">
+      <div class="row" style="align-items:flex-end;">
+        <div>
+          <label style="margin-bottom:6px;">Timeline</label>
+          <div class="chk" style="margin:0;">
+            <input id="msn_deice" type="checkbox">
+            <label for="msn_deice" style="margin:0;color:var(--fg);font-size:14px;">DE-ICE</label>
+          </div>
+        </div>
+        <div></div>
+      </div>
 
-      <div class="divider"></div>
-      <label>Quick refs</label>
-      <table>
+      <table class="planTable">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Event</th>
+            <th style="text-align:center;">Local</th>
+            <th style="text-align:right;">Zulu</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>WX</td><td class="mono">x6190</td></tr>
-          <tr><td>AIS</td><td class="mono">x6131/6132</td></tr>
-          <tr><td>TKR</td><td class="mono">x4372</td></tr>
-          <tr><td>CP</td><td class="mono">x5555</td></tr>
-          <tr><td>SHORT RANGE</td><td class="mono">x4415</td></tr>
+          <tr><td>SHOW</td><td class="mono" id="msn_loc_show">—</td><td><input id="msn_z_show" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>BUS 1</td><td class="mono" id="msn_loc_bus1">—</td><td><input id="msn_z_bus1" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>BUS 2</td><td class="mono" id="msn_loc_bus2">—</td><td><input id="msn_z_bus2" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>B4 START</td><td class="mono" id="msn_loc_b4">—</td><td><input id="msn_z_b4" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>DOOR CLOSE</td><td class="mono" id="msn_loc_door">—</td><td><input id="msn_z_door" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>ENG START</td><td class="mono" id="msn_loc_eng">—</td><td><input id="msn_z_eng" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td><b>TAKEOFF</b></td><td class="mono" id="msn_loc_to">—</td><td><input id="msn_z_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <table class="planTable">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Event</th>
+            <th style="text-align:center;">Planned (Z)</th>
+            <th style="text-align:center;">Actual (Z)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>T/O</td><td><input id="msn_p_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>LAND</td><td><input id="msn_p_land" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_land" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>ON/S</td><td><input id="msn_p_ons" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_ons" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>OFF/S</td><td><input id="msn_p_offs" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_offs" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>AR START</td><td><input id="msn_p_arst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_arst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>AR END</td><td><input id="msn_p_arend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_arend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>TX START</td><td><input id="msn_p_txst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_txst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>TX END</td><td><input id="msn_p_txend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_txend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
         </tbody>
       </table>
 
-      <div class="btnrow">
-        <button id="resetMsnBtn">Reset MSN</button>
+      <div class="divider"></div>
+
+      <div class="row">
+        <div>
+          <label>Dur (T/O actual → LAND actual) [hrs]</label>
+          <input id="msn_dur" type="text" readonly>
+        </div>
+        <div>
+          <label>GAS (received fuel, klbs)</label>
+          <input id="msn_gas" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 12.5">
+        </div>
       </div>
     </div>
 
-    <div class="disclaimer">for reference only</div>
+    <div class="disclaimer">stored locally on this device</div>
   </div>
 
   <!-- CHECKLIST TAB -->
@@ -1422,6 +1446,175 @@ for reference only`;
   $("copyWindBtn").addEventListener("click", copyWind);
   $("resetWindBtn").addEventListener("click", resetWind);
  
+
+  // =========================
+  // MSN PLANNING
+  // =========================
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function normalizeHHMMInput(el){
+    let v = (el.value || "").trim();
+    v = v.replace(".",":").replace(" ", "");
+    const m4 = v.match(/^(\d{2})(\d{2})$/);
+    if (m4) v = `${m4[1]}:${m4[2]}`;
+    const m = v.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+    if (!m) return;
+    let hh = Math.min(23, Math.max(0, parseInt(m[1],10)||0));
+    let mm = Math.min(59, Math.max(0, parseInt(m[2],10)||0));
+    el.value = `${pad2(hh)}:${pad2(mm)}`;
+  }
+  function zuluMinutes(hhmm){
+    const t = String(hhmm||"").trim();
+    const m = t.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+    if(!m) return NaN;
+    const hh=Number(m[1]), mm=Number(m[2]);
+    if(!isFinite(hh)||!isFinite(mm)||hh<0||hh>23||mm<0||mm>59) return NaN;
+    return hh*60+mm;
+  }
+  function minutesToHHMM(mins){
+    if(!isFinite(mins)) return "";
+    mins = ((mins%1440)+1440)%1440;
+    const hh=Math.floor(mins/60), mm=mins%60;
+    return `${pad2(hh)}:${pad2(mm)}`;
+  }
+  function zuluToLocalStr(hhmm){
+    const mins = zuluMinutes(hhmm);
+    if(!isFinite(mins)) return "—";
+    const now = new Date();
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+    d.setUTCMinutes(mins);
+    return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+  }
+
+  function updateCallsign(){
+    const el = $("msn_callsign_num");
+    if(!el) return;
+    const n = (el.value || "").replace(/\D/g,"");
+    el.value = n;
+    const full = "NATO" + (n || "");
+    const out = $("msn_callsign_full");
+    if(out) out.textContent = full;
+  }
+
+  function populateMsnAlternate(){
+    const sel = $("msn_altSel");
+    if(!sel) return;
+    sel.innerHTML = "";
+    Object.keys(TABLES).forEach(k=>{
+      const o=document.createElement("option");
+      o.value=k; o.textContent=k;
+      sel.appendChild(o);
+    });
+    const other=document.createElement("option");
+    other.value="__OTHER__"; other.textContent="Other";
+    sel.appendChild(other);
+  }
+  function msnAltChanged(){
+    const isOther = $("msn_altSel").value === "__OTHER__";
+    $("msn_altOtherWrap").classList.toggle("hidden", !isOther);
+  }
+
+  const MSN_OFFSETS_MIN = { bus1:-120, bus2:-70, b4:-60, door:-35, eng:-30 };
+  const msnEdited = {};
+  function markEdited(id){ msnEdited[id]=true; }
+  function setIfNotEdited(id, value){
+    const el = $(id);
+    if(!el) return;
+    if (!msnEdited[id] && (el.value||"").trim()==="") el.value = value;
+  }
+
+  function updateTimeline(){
+    const toEl = $("msn_z_to");
+    if(!toEl) return;
+    ["msn_z_show","msn_z_bus1","msn_z_bus2","msn_z_b4","msn_z_door","msn_z_eng","msn_z_to"].forEach(id=>{
+      const el=$(id); if(el) normalizeHHMMInput(el);
+    });
+
+    const toMin = zuluMinutes(toEl.value);
+    if(!isFinite(toMin)){
+      ["show","bus1","bus2","b4","door","eng","to"].forEach(k=>{
+        const loc=$("msn_loc_"+k);
+        if(loc) loc.textContent="—";
+      });
+      return;
+    }
+
+    const showOffset = $("msn_deice")?.checked ? -180 : -150;
+    setIfNotEdited("msn_z_show", minutesToHHMM(toMin + showOffset));
+    setIfNotEdited("msn_z_bus1", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus1));
+    setIfNotEdited("msn_z_bus2", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus2));
+    setIfNotEdited("msn_z_b4",   minutesToHHMM(toMin + MSN_OFFSETS_MIN.b4));
+    setIfNotEdited("msn_z_door", minutesToHHMM(toMin + MSN_OFFSETS_MIN.door));
+    setIfNotEdited("msn_z_eng",  minutesToHHMM(toMin + MSN_OFFSETS_MIN.eng));
+
+    $("msn_loc_show").textContent = zuluToLocalStr($("msn_z_show").value);
+    $("msn_loc_bus1").textContent = zuluToLocalStr($("msn_z_bus1").value);
+    $("msn_loc_bus2").textContent = zuluToLocalStr($("msn_z_bus2").value);
+    $("msn_loc_b4").textContent   = zuluToLocalStr($("msn_z_b4").value);
+    $("msn_loc_door").textContent = zuluToLocalStr($("msn_z_door").value);
+    $("msn_loc_eng").textContent  = zuluToLocalStr($("msn_z_eng").value);
+    $("msn_loc_to").textContent   = zuluToLocalStr($("msn_z_to").value);
+  }
+
+  function updateDur(){
+    const toA = zuluMinutes(($("msn_a_to")?.value||"").trim());
+    const landA = zuluMinutes(($("msn_a_land")?.value||"").trim());
+    if(!isFinite(toA) || !isFinite(landA)){
+      if($("msn_dur")) $("msn_dur").value = "";
+      return;
+    }
+    let diff = landA - toA;
+    if(diff < 0) diff += 1440;
+    const hrs = diff / 60.0;
+    if($("msn_dur")) $("msn_dur").value = (Math.round(hrs*10)/10).toString();
+  }
+
+  function wireMsn(){
+    if(!$("viewMsn")) return;
+
+    if ($("msn_callsign_num")){
+      $("msn_callsign_num").addEventListener("input", updateCallsign);
+      $("msn_callsign_num").addEventListener("change", updateCallsign);
+      updateCallsign();
+    }
+
+    if ($("msn_altSel")){
+      populateMsnAlternate();
+      $("msn_altSel").addEventListener("change", msnAltChanged);
+      msnAltChanged();
+    }
+
+    ["msn_z_show","msn_z_bus1","msn_z_bus2","msn_z_b4","msn_z_door","msn_z_eng"].forEach(id=>{
+      const el=$(id);
+      if(!el) return;
+      el.addEventListener("input", ()=>{ markEdited(id); updateTimeline(); });
+      el.addEventListener("change", ()=>{ markEdited(id); updateTimeline(); });
+    });
+
+    if ($("msn_z_to")){
+      $("msn_z_to").addEventListener("input", updateTimeline);
+      $("msn_z_to").addEventListener("change", updateTimeline);
+    }
+    if ($("msn_deice")){
+      $("msn_deice").addEventListener("change", ()=>{
+        if(!msnEdited["msn_z_show"] && $("msn_z_show")) $("msn_z_show").value = "";
+        updateTimeline();
+      });
+    }
+
+    document.querySelectorAll("#viewMsn .timeZ").forEach(el=>{
+      el.addEventListener("blur", ()=>{ normalizeHHMMInput(el); updateTimeline(); updateDur(); });
+    });
+
+    ["msn_a_to","msn_a_land"].forEach(id=>{
+      const el=$(id);
+      if(!el) return;
+      el.addEventListener("input", updateDur);
+      el.addEventListener("change", updateDur);
+    });
+
+    updateTimeline();
+    updateDur();
+  }
 // INIT
   applySavedInputs();
   renderChecklist();
@@ -1451,7 +1644,8 @@ for reference only`;
 
   calcFuel();
   calcWind();
-  setTab("fuel");
+  wireMsn();
+    setTab("fuel");
 })();
 </script>
 <script>
