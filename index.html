@@ -252,6 +252,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     #viewMsn .planTable td{ overflow:hidden; }
     #viewMsn .planTable input[type="time"]{ width:100%; max-width:100%; min-width:0; box-sizing:border-box; display:block; }
 
+
+    .iconBtn{ border:1px solid var(--border); background:var(--tab); color:var(--fg); border-radius:12px; padding:8px 10px; font-size:18px; line-height:18px; }
+    .modal{ position:fixed; inset:0; z-index:9999; }
+    .modalBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
+    .modalSheet{ position:absolute; left:12px; right:12px; bottom:12px; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
+
 </style>
 </head>
  
@@ -630,13 +636,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           <label>Offload (klbs)</label>
           <input id="msn_tanker_offload" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
         </div>
-        <div>
-          <label>GAS (received from tanker, klbs)</label>
-          <input id="msn_tanker_gas" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 12.5">
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
+<div class="row" style="margin-top:10px;">
         <div>
           <label>END AR WT (klbs)</label>
           <input id="msn_tanker_end_wt" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
@@ -649,17 +649,40 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
       <div class="divider"></div>
 
-      <label>Email morning of flight</label>
+      
+    </div>
+
+    <div class="card">
+      <div class="row" style="align-items:center; justify-content:space-between;">
+        <label style="margin:0;">Quick Reference</label>
+        <button id="qrSettingsBtn" class="iconBtn" aria-label="Settings">⚙️</button>
+      </div>
+
+      <div class="mutedSmall" style="margin-top:6px;">Email morning of flight</div>
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Orders / CMD Post</label>
-          <input id="msn_email_orders" type="email" autocomplete="off" spellcheck="false" value="dummy@naew.nato.int">
+          <input id="qr_email_orders" type="email" readonly data-persist="settings" value="dummy@naew.nato.int">
         </div>
         <div>
           <label>ORM / Safety</label>
-          <input id="msn_email_orm" type="email" autocomplete="off" spellcheck="false" value="dummy@naew.nato.int">
+          <input id="qr_email_orm" type="email" readonly data-persist="settings" value="dummy@naew.nato.int">
         </div>
       </div>
+
+      <div class="divider"></div>
+
+      <table class="planTable" style="border-bottom:0;">
+        <tbody>
+          <tr><td style="font-weight:900;">WX</td><td style="text-align:right;" class="mono">x6190</td></tr>
+          <tr><td style="font-weight:900;">AIS</td><td style="text-align:right;" class="mono">x6131/6132</td></tr>
+          <tr><td style="font-weight:900;">TKR</td><td style="text-align:right;" class="mono">x4372</td></tr>
+          <tr><td style="font-weight:900;">CP</td><td style="text-align:right;" class="mono">x5555</td></tr>
+          <tr><td style="font-weight:900;">SHORT RANGE</td><td style="text-align:right;" class="mono">x4415</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     </div>
 
     
@@ -774,6 +797,7 @@ const STORAGE_KEY = "e3a_planner_state_v1";
     // Clear UI
     document.querySelectorAll("#viewMsn input, #viewMsn select, #viewMsn textarea").forEach(el => {
       if (!el.id) return;
+      if (el.dataset && el.dataset.persist === "settings") return;
       if (el.type === "checkbox") el.checked = false;
       else if (el.tagName === "SELECT") el.selectedIndex = 0;
       else el.value = "";
@@ -1729,6 +1753,45 @@ for reference only`;
     updateTimeline();
     updateDur();
   }
+
+  // =========================
+  // QUICK REFERENCE SETTINGS (local only)
+  // =========================
+  const QR_KEY_ORDERS = "qr_email_orders";
+  const QR_KEY_ORM    = "qr_email_orm";
+
+  function loadQuickRef(){
+    const orders = localStorage.getItem(QR_KEY_ORDERS) || $("qr_email_orders")?.value || "";
+    const orm    = localStorage.getItem(QR_KEY_ORM)    || $("qr_email_orm")?.value || "";
+    if ($("qr_email_orders")) $("qr_email_orders").value = orders;
+    if ($("qr_email_orm")) $("qr_email_orm").value = orm;
+    if ($("qr_set_orders")) $("qr_set_orders").value = orders;
+    if ($("qr_set_orm")) $("qr_set_orm").value = orm;
+  }
+
+  function openQrSettings(){
+    loadQuickRef();
+    $("qrSettingsModal")?.classList.remove("hidden");
+  }
+  function closeQrSettings(){
+    $("qrSettingsModal")?.classList.add("hidden");
+  }
+  function saveQrSettings(){
+    const orders = ($("qr_set_orders")?.value || "").trim();
+    const orm    = ($("qr_set_orm")?.value || "").trim();
+    localStorage.setItem(QR_KEY_ORDERS, orders);
+    localStorage.setItem(QR_KEY_ORM, orm);
+    loadQuickRef();
+    closeQrSettings();
+  }
+  function clearQrSettings(){
+    localStorage.removeItem(QR_KEY_ORDERS);
+    localStorage.removeItem(QR_KEY_ORM);
+    if ($("qr_set_orders")) $("qr_set_orders").value = "";
+    if ($("qr_set_orm")) $("qr_set_orm").value = "";
+    loadQuickRef();
+    closeQrSettings();
+  }
 // INIT
   applySavedInputs();
   renderChecklist();
@@ -1759,6 +1822,12 @@ for reference only`;
   calcFuel();
   calcWind();
   wireMsn();
+    loadQuickRef();
+    $("qrSettingsBtn")?.addEventListener("click", openQrSettings);
+    $("qrSettingsClose")?.addEventListener("click", closeQrSettings);
+    $("qrSettingsBackdrop")?.addEventListener("click", closeQrSettings);
+    $("qrSettingsSave")?.addEventListener("click", saveQrSettings);
+    $("qrSettingsClear")?.addEventListener("click", clearQrSettings);
     $("msnExport")?.addEventListener("click", exportMsnState);
     $("msnReset")?.addEventListener("click", resetMsnState);
     setTab("fuel");
@@ -1808,10 +1877,36 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 17:39:50 UTC (31c1)";
+    v.textContent = "Build: 2026-02-17 18:44:40 UTC (45a0)";
     document.body.appendChild(v);
   });
 </script>
+
+
+<div id="qrSettingsModal" class="modal hidden">
+  <div class="modalBackdrop" id="qrSettingsBackdrop"></div>
+  <div class="modalSheet">
+    <div class="row" style="align-items:center; justify-content:space-between;">
+      <div style="font-weight:900;">Quick Reference Settings</div>
+      <button id="qrSettingsClose" class="iconBtn" aria-label="Close">✕</button>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>Orders / CMD Post</label>
+      <input id="qr_set_orders" type="email" autocomplete="off" spellcheck="false" placeholder="name@naew.nato.int">
+    </div>
+
+    <div style="margin-top:12px;">
+      <label>ORM / Safety</label>
+      <input id="qr_set_orm" type="email" autocomplete="off" spellcheck="false" placeholder="name@naew.nato.int">
+    </div>
+
+    <div class="row" style="margin-top:14px;">
+      <button id="qrSettingsSave" class="btnSmall">Save</button>
+      <button id="qrSettingsClear" class="btnSmall danger">Clear</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
