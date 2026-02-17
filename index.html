@@ -364,16 +364,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
         <input id="tripContOn" type="checkbox">
         <label for="tripContOn" style="margin:0;color:var(--fg);font-size:14px;">Trip contingency 5%</label>
       </div>
-      <button id="btnExport" class="btnSmall">Export</button>
-      <button id="btnReset" class="btnSmall danger">Reset</button>
-      <div class="chk">
+<div class="chk">
         <input id="orbitContOn" type="checkbox">
         <label for="orbitContOn" style="margin:0;color:var(--fg);font-size:14px;">Orbit contingency 3%</label>
       </div>
-      <button id="btnExport" class="btnSmall">Export</button>
-      <button id="btnReset" class="btnSmall danger">Reset</button>
- 
-      <div class="divider"></div>
+<div class="divider"></div>
  
       <div class="kpi" id="fuelKPI">—</div>
  
@@ -667,6 +662,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
       </div>
     </div>
 
+    
+      <div class="row" style="margin-top:14px;">
+        <button id="msnExport" class="btnSmall">Export MSN</button>
+        <button id="msnReset" class="btnSmall danger">Reset MSN</button>
+      </div>
+
     <div class="disclaimer">stored locally on this device</div>
   </div>
 
@@ -733,24 +734,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   $("tabMsn").addEventListener("click", () => setTab("msn"));
   $("tabChecklist").addEventListener("click", () => setTab("checklist"));
   $("tabSeat").addEventListener("click", () => setTab("seat"));
-
-  
-  function downloadState(){
-    const data = localStorage.getItem(STORAGE_KEY) || "{}";
-    const blob = new Blob([data], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "e3a_planner_state.json";
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-  }
-  function resetState(){
-    if(!confirm("Reset all saved data on this device?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
-  $("btnExport")?.addEventListener("click", downloadState);
-  $("btnReset")?.addEventListener("click", resetState);
 const STORAGE_KEY = "e3a_planner_state_v1";
   const CHECKLIST_ITEMS = [{"section": "MISSION PLANNING", "text": "APS Mission Overview", "tag": ""}, {"section": "MISSION PLANNING", "text": "WX Forecast", "tag": ""}, {"section": "MISSION PLANNING", "text": "Fuel Timeline", "tag": ""}, {"section": "MISSION PLANNING", "text": "Call WX (x6190)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Run TOLD w/ FE", "tag": ""}, {"section": "MISSION PLANNING", "text": "Joker & Bingo Fuel", "tag": ""}, {"section": "MISSION PLANNING", "text": "Dip Clearances (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Plan Request (SWAAI x6130/6131)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Notification of Overflight (NOF) (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "NOTAMS", "tag": ""}, {"section": "MISSION PLANNING", "text": "CFPS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Email MP Slides to TD", "tag": ""}, {"section": "MISSION PLANNING", "text": "Approach Request to CMD Post", "tag": ""}, {"section": "MISSION PLANNING", "text": "Change Request (OWES), NLT 1400", "tag": ""}, {"section": "MISSION PLANNING", "text": "ORM", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Orders", "tag": ""}, {"section": "MISSION PLANNING", "text": "Ops Brief", "tag": ""}, {"section": "MISSION PLANNING", "text": "Msn Pln'g Summary Report, NLT 1530", "tag": ""}, {"section": "MISSION PLANNING", "text": "Seat Flow / REVIEW STUD FOLDERS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Cut Card", "tag": ""}, {"section": "MISSION PLANNING", "text": "Print CFPS Flight Log", "tag": ""}, {"section": "MISSION PLANNING", "text": "CRD in \"Missions\" Folder", "tag": ""}, {"section": "MISSION PLANNING", "text": "Message Pilots/FE Details/Assignments", "tag": ""}, {"section": "FLY DAY", "text": "Mission Binder", "tag": ""}, {"section": "FLY DAY", "text": "M2 (if no MSN Crew)", "tag": ""}, {"section": "FLY DAY", "text": "Login to Brief", "tag": ""}, {"section": "FLY DAY", "text": "Check/Sign Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "Email Orders/ORM", "tag": ""}, {"section": "FLY DAY", "text": "3x Copies of Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "AIS", "tag": ""}, {"section": "FLY DAY", "text": "Flt Plan → Foreflight", "tag": ""}];
 
@@ -769,6 +752,43 @@ const STORAGE_KEY = "e3a_planner_state_v1";
     s.seat = s.seat || [];
     return s;
   }
+  
+  function exportMsnState(){
+    const data = {};
+    document.querySelectorAll("#viewMsn input, #viewMsn select, #viewMsn textarea").forEach(el => {
+      if (!el.id) return;
+      if (el.type === "checkbox") data[el.id] = !!el.checked;
+      else data[el.id] = el.value;
+    });
+    const payload = JSON.stringify({ msn: data }, null, 2);
+    const blob = new Blob([payload], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "msn_planning.json";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+
+  function resetMsnState(){
+    if(!confirm("Reset MSN Planning data on this device?")) return;
+    // Clear UI
+    document.querySelectorAll("#viewMsn input, #viewMsn select, #viewMsn textarea").forEach(el => {
+      if (!el.id) return;
+      if (el.type === "checkbox") el.checked = false;
+      else if (el.tagName === "SELECT") el.selectedIndex = 0;
+      else el.value = "";
+    });
+    // Remove saved keys
+    const state = getState();
+    Object.keys(state.inputs).forEach(k => {
+      if (k.startsWith("msn_")) delete state.inputs[k];
+    });
+    saveState(state);
+    // Re-run timeline calc if available
+    if (typeof updateTimeline === "function") updateTimeline();
+    if (typeof updateDur === "function") updateDur();
+  }
+
 
   function applySavedInputs(){
     const state = getState();
@@ -1739,6 +1759,8 @@ for reference only`;
   calcFuel();
   calcWind();
   wireMsn();
+    $("msnExport")?.addEventListener("click", exportMsnState);
+    $("msnReset")?.addEventListener("click", resetMsnState);
     setTab("fuel");
 })();
 </script>
@@ -1786,7 +1808,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 16:16:01 UTC (79f2)";
+    v.textContent = "Build: 2026-02-17 17:39:50 UTC (31c1)";
     document.body.appendChild(v);
   });
 </script>
