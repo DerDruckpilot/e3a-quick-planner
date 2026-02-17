@@ -217,6 +217,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   margin-left: auto;
 }
 
+
+.pill{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--tab);
+  font-size:12px;
+  opacity:0.85;
+  white-space:nowrap;
+}
+
 </style>
 </head>
  
@@ -249,6 +261,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   <div class="tabs">
     <button id="tabFuel" class="tabbtn active">Fuel</button>
     <button id="tabWind" class="tabbtn">Wind</button>
+    <button id="tabMsn" class="tabbtn">MSN Planning</button>
+    <button id="tabChecklist" class="tabbtn">Checklist</button>
+    <button id="tabSeat" class="tabbtn">Seat Flow</button>
   </div>
  
   <!-- FUEL TAB -->
@@ -440,9 +455,160 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     <div class="disclaimer">for reference only</div>
   </div>
  
+
+  <!-- MSN PLANNING TAB -->
+  <div id="viewMsn" class="hidden">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>MSN #</label>
+          <input id="msn_msn" type="text" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>Callsign</label>
+          <input id="msn_callsign" type="text" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Tail</label>
+          <input id="msn_tail" type="text" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>POB</label>
+          <input id="msn_pob" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Orbit</label>
+          <input id="msn_orbit" type="text" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>Parking</label>
+          <input id="msn_parking" type="text" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Status</label>
+          <input id="msn_status" type="text" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>Spare</label>
+          <input id="msn_spare" type="text" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <label style="margin-top:10px;">Alternate</label>
+      <input id="msn_alternate" type="text" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="card">
+      <label>Timeline (local)</label>
+
+      <div class="row" style="margin-top:10px;">
+        <div><label>SHOW</label><input id="msn_show" type="time" step="60"></div>
+        <div><label>BUS 1</label><input id="msn_bus1" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>BUS 2</label><input id="msn_bus2" type="time" step="60"></div>
+        <div><label>B4 START</label><input id="msn_b4start" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>DOOR CLOSE</label><input id="msn_doorclose" type="time" step="60"></div>
+        <div><label>ENG START</label><input id="msn_engstart" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>DE-ICE</label><input id="msn_deice" type="time" step="60"></div>
+        <div><label>TAKEOFF</label><input id="msn_takeoff" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>T/O</label><input id="msn_to" type="time" step="60"></div>
+        <div><label>LAND</label><input id="msn_land" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>ON/S</label><input id="msn_ons" type="time" step="60"></div>
+        <div><label>OFF/S</label><input id="msn_offs" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>AR START</label><input id="msn_arstart" type="time" step="60"></div>
+        <div><label>AR END</label><input id="msn_arend" type="time" step="60"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div><label>TX START</label><input id="msn_txstart" type="time" step="60"></div>
+        <div><label>TX END</label><input id="msn_txend" type="time" step="60"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Contacts (local)</label>
+      <label style="margin-top:10px;">Orders / CMD Post</label>
+      <input id="msn_orders_email" type="email" autocomplete="off" spellcheck="false" value="name1@naew.nato.int">
+      <label style="margin-top:10px;">ORM / Safety</label>
+      <input id="msn_orm_email" type="email" autocomplete="off" spellcheck="false" value="name2@naew.nato.int">
+
+      <div class="divider"></div>
+      <label>Quick refs</label>
+      <table>
+        <tbody>
+          <tr><td>WX</td><td class="mono">x6190</td></tr>
+          <tr><td>AIS</td><td class="mono">x6131/6132</td></tr>
+          <tr><td>TKR</td><td class="mono">x4372</td></tr>
+          <tr><td>CP</td><td class="mono">x5555</td></tr>
+          <tr><td>SHORT RANGE</td><td class="mono">x4415</td></tr>
+        </tbody>
+      </table>
+
+      <div class="btnrow">
+        <button id="resetMsnBtn">Reset MSN</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">for reference only</div>
+  </div>
+
+  <!-- CHECKLIST TAB -->
+  <div id="viewChecklist" class="hidden">
+    <div class="card">
+      <div id="checklistContainer"></div>
+      <div class="btnrow">
+        <button id="resetChecklistBtn">Reset checklist</button>
+      </div>
+    </div>
+    <div class="disclaimer">for reference only</div>
+  </div>
+
+  <!-- SEAT FLOW TAB -->
+  <div id="viewSeat" class="hidden">
+    <div class="card">
+      <label>Seat Flow</label>
+      <table>
+        <thead>
+          <tr>
+            <td><b>Phase</b></td>
+            <td><b>Left</b></td>
+            <td><b>Right</b></td>
+            <td><b>Seat 5</b></td>
+            <td style="text-align:right;"><b>Time</b></td>
+          </tr>
+        </thead>
+        <tbody id="seatTableBody"></tbody>
+      </table>
+      <div class="btnrow">
+        <button id="addSeatRowBtn">Add row</button>
+        <button id="resetSeatBtn">Reset</button>
+      </div>
+    </div>
+    <div class="disclaimer">for reference only</div>
+  </div>
+
 <script>
 (() => {
-  const BUILD_VERSION = "2026-02-17 11:53:12 UTC (2110)";
+  const BUILD_VERSION = "2026-02-17 12:20:35 UTC (4634)";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -454,15 +620,220 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   });
  
   // TABS
-  function setTab(which){
-    const fuel = which === "fuel";
-    $("tabFuel").classList.toggle("active", fuel);
-    $("tabWind").classList.toggle("active", !fuel);
-    $("viewFuel").classList.toggle("hidden", !fuel);
-    $("viewWind").classList.toggle("hidden", fuel);
+  function setTab(tab){
+    const tabs = ["fuel","wind","msn","checklist","seat"];
+    tabs.forEach(t => {
+      const btn = $("tab" + (t==="fuel"?"Fuel":t==="wind"?"Wind":t==="msn"?"Msn":t==="checklist"?"Checklist":"Seat"));
+      const view = $("view" + (t==="fuel"?"Fuel":t==="wind"?"Wind":t==="msn"?"Msn":t==="checklist"?"Checklist":"Seat"));
+      btn.classList.toggle("active", t===tab);
+      view.classList.toggle("hidden", t!==tab);
+    });
   }
   $("tabFuel").addEventListener("click", () => setTab("fuel"));
   $("tabWind").addEventListener("click", () => setTab("wind"));
+  $("tabMsn").addEventListener("click", () => setTab("msn"));
+  $("tabChecklist").addEventListener("click", () => setTab("checklist"));
+  $("tabSeat").addEventListener("click", () => setTab("seat"));
+
+  const STORAGE_KEY = "e3a_planner_state_v1";
+  const CHECKLIST_ITEMS = [{"section": "MISSION PLANNING", "text": "APS Mission Overview", "tag": ""}, {"section": "MISSION PLANNING", "text": "WX Forecast", "tag": ""}, {"section": "MISSION PLANNING", "text": "Fuel Timeline", "tag": ""}, {"section": "MISSION PLANNING", "text": "Call WX (x6190)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Run TOLD w/ FE", "tag": ""}, {"section": "MISSION PLANNING", "text": "Joker & Bingo Fuel", "tag": ""}, {"section": "MISSION PLANNING", "text": "Dip Clearances (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Plan Request (SWAAI x6130/6131)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Notification of Overflight (NOF) (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "NOTAMS", "tag": ""}, {"section": "MISSION PLANNING", "text": "CFPS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Email MP Slides to TD", "tag": ""}, {"section": "MISSION PLANNING", "text": "Approach Request to CMD Post", "tag": ""}, {"section": "MISSION PLANNING", "text": "Change Request (OWES), NLT 1400", "tag": ""}, {"section": "MISSION PLANNING", "text": "ORM", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Orders", "tag": ""}, {"section": "MISSION PLANNING", "text": "Ops Brief", "tag": ""}, {"section": "MISSION PLANNING", "text": "Msn Pln'g Summary Report, NLT 1530", "tag": ""}, {"section": "MISSION PLANNING", "text": "Seat Flow / REVIEW STUD FOLDERS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Cut Card", "tag": ""}, {"section": "MISSION PLANNING", "text": "Print CFPS Flight Log", "tag": ""}, {"section": "MISSION PLANNING", "text": "CRD in \"Missions\" Folder", "tag": ""}, {"section": "MISSION PLANNING", "text": "Message Pilots/FE Details/Assignments", "tag": ""}, {"section": "FLY DAY", "text": "Mission Binder", "tag": ""}, {"section": "FLY DAY", "text": "M2 (if no MSN Crew)", "tag": ""}, {"section": "FLY DAY", "text": "Login to Brief", "tag": ""}, {"section": "FLY DAY", "text": "Check/Sign Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "Email Orders/ORM", "tag": ""}, {"section": "FLY DAY", "text": "3x Copies of Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "AIS", "tag": ""}, {"section": "FLY DAY", "text": "Flt Plan → Foreflight", "tag": ""}];
+
+  function loadState(){
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {};
+    } catch(_) { return {}; }
+  }
+  function saveState(state){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(_) {}
+  }
+  function getState(){
+    const s = loadState();
+    s.inputs = s.inputs || {};
+    s.checklist = s.checklist || {};
+    s.seat = s.seat || [];
+    return s;
+  }
+
+  function applySavedInputs(){
+    const state = getState();
+    Object.entries(state.inputs).forEach(([id,val]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === "checkbox") el.checked = !!val;
+      else el.value = val;
+    });
+  }
+
+  function persistInput(id){
+    const el = document.getElementById(id);
+    if (!el) return;
+    const state = getState();
+    state.inputs[id] = (el.type === "checkbox") ? !!el.checked : el.value;
+    saveState(state);
+  }
+
+  function wireAutoSave(ids){
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const evt = (el.type === "checkbox") ? "change" : "input";
+      el.addEventListener(evt, () => persistInput(id));
+    });
+  }
+
+  function renderChecklist(){
+    const state = getState();
+    const root = $("checklistContainer");
+    if (!root) return;
+    root.innerHTML = "";
+    let current = "";
+    CHECKLIST_ITEMS.forEach((it, idx) => {
+      if (it.section !== current) {
+        current = it.section;
+        const h = document.createElement("div");
+        h.style.fontWeight = "700";
+        h.style.margin = "10px 0 6px";
+        h.textContent = current;
+        root.appendChild(h);
+      }
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.gap = "10px";
+      row.style.padding = "6px 0";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      const key = "chk_" + idx;
+      cb.checked = !!state.checklist[key];
+      cb.addEventListener("change", () => {
+        const s = getState();
+        s.checklist[key] = !!cb.checked;
+        saveState(s);
+      });
+      const txt = document.createElement("div");
+      txt.style.flex = "1 1 auto";
+      txt.textContent = it.text;
+      row.appendChild(cb);
+      row.appendChild(txt);
+      if (it.tag) {
+        const tag = document.createElement("div");
+        tag.className = "pill";
+        tag.textContent = it.tag;
+        row.appendChild(tag);
+      }
+      root.appendChild(row);
+    });
+  }
+
+  function seatRowEl(row){
+    const tr = document.createElement("tr");
+
+    function cell(key, placeholder, type="text"){
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.type = type;
+      if (type === "time") inp.step = "60";
+      inp.placeholder = placeholder;
+      inp.value = row[key] || "";
+      inp.addEventListener("input", persistSeat);
+      td.appendChild(inp);
+      return [td, inp];
+    }
+
+    const [tdPhase, iPhase] = cell("phase", "Phase");
+    const [tdLeft, iLeft] = cell("left", "Left");
+    const [tdRight, iRight] = cell("right", "Right");
+    const [tdSeat5, iSeat5] = cell("seat5", "Seat 5");
+    const [tdTime, iTime] = cell("time", "Time", "time");
+    tdTime.style.textAlign = "right";
+
+    const tdDel = document.createElement("td");
+    tdDel.style.textAlign = "right";
+    const del = document.createElement("button");
+    del.textContent = "✕";
+    del.style.padding = "6px 10px";
+    del.addEventListener("click", (e) => {
+      e.preventDefault();
+      tr.remove();
+      persistSeat();
+    });
+    tdDel.appendChild(del);
+
+    tr.appendChild(tdPhase);
+    tr.appendChild(tdLeft);
+    tr.appendChild(tdRight);
+    tr.appendChild(tdSeat5);
+    tr.appendChild(tdTime);
+    tr.appendChild(tdDel);
+
+    tr._inputs = { iPhase, iLeft, iRight, iSeat5, iTime };
+    return tr;
+  }
+
+  function readSeatTable(){
+    const rows = Array.from($("seatTableBody").querySelectorAll("tr"));
+    return rows.map(tr => {
+      const i = tr._inputs;
+      return {
+        phase: i.iPhase.value,
+        left: i.iLeft.value,
+        right: i.iRight.value,
+        seat5: i.iSeat5.value,
+        time: i.iTime.value
+      };
+    });
+  }
+
+  function persistSeat(){
+    const state = getState();
+    state.seat = readSeatTable();
+    saveState(state);
+  }
+
+  function renderSeat(){
+    const state = getState();
+    const body = $("seatTableBody");
+    if (!body) return;
+    body.innerHTML = "";
+    const rows = (state.seat && state.seat.length) ? state.seat : [{},{},{},{},{}];
+    rows.forEach(r => {
+      const tr = seatRowEl({
+        phase: r.phase || "",
+        left: r.left || "",
+        right: r.right || "",
+        seat5: r.seat5 || "",
+        time: r.time || ""
+      });
+      body.appendChild(tr);
+    });
+  }
+
+  function resetChecklist(){
+    const s = getState();
+    s.checklist = {};
+    saveState(s);
+    renderChecklist();
+  }
+
+  function resetSeat(){
+    const s = getState();
+    s.seat = [];
+    saveState(s);
+    renderSeat();
+  }
+
+  function resetMsn(){
+    const ids = ["msn_msn","msn_callsign","msn_tail","msn_pob","msn_orbit","msn_parking","msn_status","msn_spare","msn_alternate",
+      "msn_show","msn_bus1","msn_bus2","msn_b4start","msn_doorclose","msn_engstart","msn_deice","msn_takeoff","msn_to","msn_land","msn_ons","msn_offs","msn_arstart","msn_arend","msn_txstart","msn_txend",
+      "msn_orders_email","msn_orm_email"];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    const s = getState();
+    ids.forEach(id => delete s.inputs[id]);
+    saveState(s);
+  }
  
   // HELPERS
  
@@ -1052,8 +1423,34 @@ for reference only`;
   $("resetWindBtn").addEventListener("click", resetWind);
  
 // INIT
+  applySavedInputs();
+  renderChecklist();
+  renderSeat();
+
+  wireAutoSave([
+    // Fuel
+    "fuelMode","totalTime","rampFuelIn","dest","alt","orbitTime","transTime","aarTime","aarRecv","tripContOn","orbitContOn",
+    // Wind
+    "rwyHdg","windDir","windSpd","windGust","maxTail","maxXwind",
+    // MSN Planning
+    "msn_msn","msn_callsign","msn_tail","msn_pob","msn_orbit","msn_parking","msn_status","msn_spare","msn_alternate",
+    "msn_show","msn_bus1","msn_bus2","msn_b4start","msn_doorclose","msn_engstart","msn_deice","msn_takeoff","msn_to","msn_land","msn_ons","msn_offs","msn_arstart","msn_arend","msn_txstart","msn_txend",
+    "msn_orders_email","msn_orm_email"
+  ]);
+
+  $("resetMsnBtn")?.addEventListener("click", resetMsn);
+  $("resetChecklistBtn")?.addEventListener("click", resetChecklist);
+  $("resetSeatBtn")?.addEventListener("click", resetSeat);
+  $("addSeatRowBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const body = $("seatTableBody");
+    if (!body) return;
+    body.appendChild(seatRowEl({ phase:"", left:"", right:"", seat5:"", time:"" }));
+    persistSeat();
+  });
+
   calcFuel();
-  resetWind();
+  calcWind();
   setTab("fuel");
 })();
 </script>
@@ -1077,7 +1474,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
-  const BUILD_VERSION = "2026-02-17 11:53:12 UTC (2110)";
+  const BUILD_VERSION = "2026-02-17 12:20:35 UTC (4634)";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1101,7 +1498,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 11:53:12 UTC (2110)";
+    v.textContent = "Build: 2026-02-17 12:20:35 UTC (4634)";
     document.body.appendChild(v);
   });
 </script>
