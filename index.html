@@ -186,7 +186,26 @@ input, select, textarea {
   display: block;
 } 
     
-  </style>
+  
+/* --- iOS time input overflow fix --- */
+input[type="time"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  display: block;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.row > * {
+  min-width: 0;
+}
+
+input {
+  min-width: 0;
+}
+
+</style>
 </head>
  
 <body>
@@ -282,12 +301,12 @@ input, select, textarea {
  
       <label style="margin-top:10px;">Received fuel from tanker (klbs)</label>
       <input id="aarRecv" type="text"
-       inputmode="decimal"
-       pattern="[0-9]*[.,]?[0-9]*"
+       inputmode="numeric"
+       pattern="[0-9]*"
        autocomplete="off"
        autocorrect="off"
        spellcheck="false"
-       placeholder="e.g. 12.0">
+       placeholder="e.g. 12">
     </div>
  
     <div class="card">
@@ -411,7 +430,7 @@ input, select, textarea {
  
 <script>
 (() => {
-  const BUILD_VERSION = "2026-02-17 11:05 UTC";
+  const BUILD_VERSION = "2026-02-17 11:25:59 UTC (dd47)";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -565,7 +584,9 @@ function parseHHMM(s){
     const orbitH_in = Math.max(0, parseHHMM($("orbitTime").value) || 0);
     const transH_in = Math.max(0, parseHHMM($("transTime").value) || 0);
     const aarH_in   = Math.max(0, parseHHMM($("aarTime").value) || 0);
-    const recv      = Math.max(0, Number($("aarRecv").value || 0));
+    const recvRaw = $("aarRecv").value || "";
+    const recv = Math.max(0, Math.round(Number(String(recvRaw).replace(",", ".")) || 0));
+    $("aarRecv").value = String(recv);
  
     const d = $("dest").value;
     const idx = Number($("alt").value || 0);
@@ -1044,7 +1065,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
-  const BUILD_VERSION = "2026-02-17 11:05 UTC";
+  const BUILD_VERSION = "2026-02-17 11:25:59 UTC (dd47)";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1068,7 +1089,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 11:05 UTC";
+    v.textContent = "Build: 2026-02-17 11:25:59 UTC (dd47)";
     document.body.appendChild(v);
   });
 </script>
