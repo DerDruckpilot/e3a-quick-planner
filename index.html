@@ -233,7 +233,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .prefixWrap{ display:flex; align-items:center; gap:8px; }
     .prefixFixed{ padding:10px 10px; border-radius:12px; border:1px solid var(--border); background:var(--tab); font-weight:800; }
     .mutedSmall{ font-size:12px; color:var(--muted); margin-top:6px; }
-    .planTable{ width:100%; border-collapse:collapse; }
+    .planTable{ width:100%; border-collapse:collapse; table-layout:fixed; }
     .planTable th{ font-size:12px; color:var(--muted); font-weight:700; padding:6px 0; border-bottom:1px solid rgba(127,127,127,.15); }
     .planTable td{ padding:8px 0; border-bottom:1px solid rgba(127,127,127,.12); vertical-align:middle; }
     .planTable td input{ margin:0; }
@@ -245,6 +245,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
     #viewMsn .planTable input[type="time"]{ width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
+
+    #viewMsn .planTable th:nth-child(1), #viewMsn .planTable td:nth-child(1){ width:30%; }
+    #viewMsn .planTable th:nth-child(2), #viewMsn .planTable td:nth-child(2){ width:35%; }
+    #viewMsn .planTable th:nth-child(3), #viewMsn .planTable td:nth-child(3){ width:35%; }
+    #viewMsn .planTable td{ overflow:hidden; }
+    #viewMsn .planTable input[type="time"]{ width:100%; max-width:100%; min-width:0; box-sizing:border-box; display:block; }
+
 </style>
 </head>
  
@@ -1601,7 +1608,7 @@ for reference only`;
   function setIfNotEdited(id, value){
     const el = $(id);
     if(!el) return;
-    if (!msnEdited[id] && (el.value||"").trim()==="") el.value = value;
+    if (!msnEdited[id]) el.value = value;
   }
 
   function updateTimeline(){
@@ -1621,13 +1628,17 @@ for reference only`;
     }
 
     const de = $("msn_deice")?.checked ? -30 : 0;
-    const showOffset = -150 + de;
-    setIfNotEdited("msn_z_show", minutesToHHMM(toMin + showOffset));
-    setIfNotEdited("msn_z_bus1", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus1 + de));
-    setIfNotEdited("msn_z_bus2", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus2 + de));
-    setIfNotEdited("msn_z_b4",   minutesToHHMM(toMin + MSN_OFFSETS_MIN.b4));
-    setIfNotEdited("msn_z_door", minutesToHHMM(toMin + MSN_OFFSETS_MIN.door + de));
-    setIfNotEdited("msn_z_eng",  minutesToHHMM(toMin + MSN_OFFSETS_MIN.eng));
+
+    // Base offsets (minutes before TAKEOFF)
+    const OFF = { show:-150, bus1:-120, bus2:-70, b4:-60, door:-35, eng:-30 };
+
+    // Apply DE-ICE shift to ALL events except TAKEOFF
+    setIfNotEdited("msn_z_show", minutesToHHMM(toMin + OFF.show + de));
+    setIfNotEdited("msn_z_bus1", minutesToHHMM(toMin + OFF.bus1 + de));
+    setIfNotEdited("msn_z_bus2", minutesToHHMM(toMin + OFF.bus2 + de));
+    setIfNotEdited("msn_z_b4",   minutesToHHMM(toMin + OFF.b4  + de));
+    setIfNotEdited("msn_z_door", minutesToHHMM(toMin + OFF.door+ de));
+    setIfNotEdited("msn_z_eng",  minutesToHHMM(toMin + OFF.eng + de));
 
     $("msn_loc_show").textContent = zuluToLocalStr($("msn_z_show").value);
     $("msn_loc_bus1").textContent = zuluToLocalStr($("msn_z_bus1").value);
@@ -1675,7 +1686,6 @@ for reference only`;
     });
 
     if ($("msn_z_to")){
-      $("msn_z_to").addEventListener("input", updateTimeline);
       $("msn_z_to").addEventListener("change", updateTimeline);
     }
     if ($("msn_deice")){
@@ -1776,7 +1786,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 15:57:57 UTC (c3a2)";
+    v.textContent = "Build: 2026-02-17 16:16:01 UTC (79f2)";
     document.body.appendChild(v);
   });
 </script>
