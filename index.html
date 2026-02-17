@@ -63,6 +63,12 @@
       width:100%; padding:10px; border-radius:12px; border:1px solid var(--border);
       background:var(--inputBg); color:var(--fg); font-size:16px; box-sizing:border-box;
     }
+
+    /* iOS time inputs can overflow inside flex/cards unless min-width is forced */
+    input{ min-width:0; }
+    .row > *{ min-width:0; }
+    input[type="time"]{ width:100%; display:block; min-width:0; }
+
     .row{ display:flex; gap:10px; }
     .row > *{ flex:1; }
     .chk{ display:flex; align-items:center; gap:10px; margin-top:10px; }
@@ -405,6 +411,7 @@ input, select, textarea {
  
 <script>
 (() => {
+  const BUILD_VERSION = "2026-02-17 11:05 UTC";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -1037,6 +1044,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
+  const BUILD_VERSION = "2026-02-17 11:05 UTC";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1052,5 +1060,18 @@ for reference only`;
   </div>
 </div>
  
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const v = document.createElement("div");
+    v.style.textAlign = "center";
+    v.style.fontSize = "11px";
+    v.style.opacity = "0.6";
+    v.style.marginTop = "4px";
+    v.textContent = "Build: 2026-02-17 11:05 UTC";
+    document.body.appendChild(v);
+  });
+</script>
+
 </body>
 </html>
