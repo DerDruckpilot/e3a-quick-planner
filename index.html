@@ -191,12 +191,19 @@ input, select, textarea {
 /* --- definitive iOS time input containment fix --- */
 
 .card input[type="time"] {
-  width: 100%;
+  display: block;
+  box-sizing: border-box;
+
+  /* Keep iOS widget from overflowing */
   max-width: 100%;
   min-width: 0;
-  box-sizing: border-box;
-  display: block;
-  padding: 10px;
+
+  /* Visual right inset without triggering iOS overflow */
+  width: calc(100% - 10px);
+  margin-right: 10px;
+
+  /* Keep native padding from main input rule; avoid extra right growth */
+  padding-right: 0;
 }
 
 .row > * {
@@ -437,7 +444,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
  
 <script>
 (() => {
-  const BUILD_VERSION = "2026-02-17 11:43:05 UTC (5398)";
+  const BUILD_VERSION = "2026-02-17 11:50:15 UTC (2e39)";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -1072,7 +1079,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
-  const BUILD_VERSION = "2026-02-17 11:43:05 UTC (5398)";
+  const BUILD_VERSION = "2026-02-17 11:50:15 UTC (2e39)";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1096,7 +1103,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 11:43:05 UTC (5398)";
+    v.textContent = "Build: 2026-02-17 11:50:15 UTC (2e39)";
     document.body.appendChild(v);
   });
 </script>
