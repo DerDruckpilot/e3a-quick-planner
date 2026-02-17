@@ -196,7 +196,7 @@ input, select, textarea {
   min-width: 0;
   box-sizing: border-box;
   display: block;
-  padding-right: 0;     /* important for iOS */
+  padding: 10px;
 }
 
 .row > * {
@@ -437,7 +437,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
  
 <script>
 (() => {
-  const BUILD_VERSION = "2026-02-17 11:33:27 UTC (fbc9)";
+  const BUILD_VERSION = "2026-02-17 11:43:05 UTC (5398)";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -1072,7 +1072,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
-  const BUILD_VERSION = "2026-02-17 11:33:27 UTC (fbc9)";
+  const BUILD_VERSION = "2026-02-17 11:43:05 UTC (5398)";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1096,7 +1096,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 11:33:27 UTC (fbc9)";
+    v.textContent = "Build: 2026-02-17 11:43:05 UTC (5398)";
     document.body.appendChild(v);
   });
 </script>
