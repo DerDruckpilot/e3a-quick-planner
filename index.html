@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>E-3A AWACS quick planner</title>
-
+ 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,8 +12,8 @@
   <meta name="apple-mobile-web-app-title" content="E-3A Planner">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
 <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
-
-
+ 
+ 
   <style>
     :root{
       --bg:#ffffff; --fg:#111111; --muted:rgba(0,0,0,.65);
@@ -27,7 +27,7 @@
       --inputBg:#0f0f0f;
     }
     body{ margin:14px; background:var(--bg); color:var(--fg); }
-
+ 
     .header{
       display:flex; align-items:center; justify-content:space-between;
       gap:12px; margin-bottom:12px;
@@ -37,7 +37,7 @@
       height:38px; width:auto; display:block; opacity:0.95;
     }
     h1{ margin:0; font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
+ 
     .switch{ position:relative; width:52px; height:28px; flex:0 0 auto; }
     .switch input{ display:none; }
     .slider{ position:absolute; inset:0; background:var(--tab); border:1px solid var(--border); border-radius:999px; }
@@ -46,14 +46,14 @@
       background:var(--card); border:1px solid var(--border); border-radius:999px; transition:.2s;
     }
     .switch input:checked + .slider:before{ transform:translateX(24px); }
-
+ 
     .tabs{ display:flex; gap:8px; margin: 10px 0 12px; }
     .tabbtn{
       flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border);
       background:var(--tab); color:var(--fg); font-size:16px;
     }
     .tabbtn.active{ background:var(--tabActive); font-weight:800; }
-
+ 
     .card{
       border:1px solid var(--border); background:var(--card);
       border-radius:14px; padding:12px; margin-bottom:12px;
@@ -83,32 +83,32 @@
       background:var(--tab); color:var(--fg); font-size:16px;
     }
     .disclaimer{ text-align:center; font-size:12px; color:var(--muted); margin:14px 0 4px; }
-    .hidden{ display:none; }
-
+   .hidden{ display:none; }
+ 
     @media (max-width: 420px){
       .awacs-logo{ height:34px; }
       h1{ font-size:17px; }
     }
-
+ 
 .launch{
   position:fixed; inset:0;
   background:#000;
   z-index:99999;
   display:flex; align-items:center; justify-content:center;
 }
-
+ 
 .launch-inner{
   position:relative;
   width:min(92vw, 520px);
   height:220px;
 }
-
+ 
 .reveal-wrap{
   position:absolute; left:0; right:0; top:60px;
   height:48px;
   overflow:hidden;
 }
-
+ 
 .reveal-text{
   font-weight:800;
   font-size:34px;
@@ -117,14 +117,14 @@
   text-align:left;
   padding-left:8px;
 }
-
+ 
 .reveal-mask{
   position:absolute; inset:0;
   background:#000;
   animation:reveal 1.8s ease forwards;
   transform:translateX(0);
 }
-
+ 
 /* AWACS flies right -> left */
 .launch-awacs{
   position:absolute;
@@ -136,9 +136,9 @@
   animation:flyIn 1.8s ease-out forwards;
   filter:drop-shadow(0 14px 30px rgba(0,0,0,.8));
 }
-
-
-
+ 
+ 
+ 
 @keyframes flyIn{
   0% {
     transform:translate(0, 0);
@@ -152,57 +152,178 @@
     opacity:1;
   }
 }
-
-
-
+ 
+ 
+ 
 /* Mask slides away to reveal the text */
 @keyframes reveal{
   0%   { transform:translateX(0); }
   100% { transform:translateX(110%); }
 }
-
+ 
 /* respects iOS reduce motion */
 @media (prefers-reduced-motion: reduce){
   .launch-awacs, .reveal-mask{ animation:none !important; }
   .launch-awacs{ opacity:0; }
   .reveal-mask{ transform:translateX(110%); }
 }
-
+ 
+    /* ===== Custom Time Picker (iOS-like) ===== */
+.tp-overlay{
+  position:fixed; inset:0;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(0,0,0,.55);
+  z-index:9999;
+  padding: 18px;
+}
+.tp-overlay.show{ display:flex; }
+ 
+.tp-card{
+  width:min(560px, 100%);
+  border-radius:20px;
+  padding:14px 14px 12px;
+  background: rgba(24,24,26,.96);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 18px 50px rgba(0,0,0,.6);
+  backdrop-filter: blur(18px);
+}
+ 
+.tp-title{
+  font-size:16px;
+  font-weight:700;
+  color: rgba(255,255,255,.92);
+  text-align:center;
+  margin: 6px 0 10px;
+}
+ 
+.tp-wheels{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding: 6px 0 10px;
+}
+ 
+.tp-wheel-wrap{ width:120px; }
+.tp-wheel-label{
+  font-size:12px;
+  opacity:.65;
+  text-align:center;
+  margin-bottom:6px;
+}
+ 
+.tp-sep{
+  font-size:28px;
+  opacity:.8;
+  margin-top:12px;
+}
+ 
+.tp-wheel{
+  height: 170px;
+  overflow-y:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  scroll-snap-type: y mandatory;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  padding: 62px 0; /* center highlight area */
+  position:relative;
+}
+.tp-wheel::-webkit-scrollbar{ display:none; }
+ 
+.tp-wheel::before{
+  content:"";
+  position:absolute;
+  left:10px; right:10px;
+  top:50%;
+  height: 42px;
+  transform: translateY(-50%);
+  border-radius:12px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  pointer-events:none;
+}
+ 
+.tp-item{
+  scroll-snap-align: center;
+  height: 42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:600;
+  color: rgba(255,255,255,.92);
+  user-select:none;
+}
+ 
+.tp-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+.tp-btn{
+  flex:1;
+  border-radius:14px;
+  padding: 12px 10px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+  font-weight:700;
+}
+.tp-primary{
+  background: rgba(10,132,255,.25);
+  border-color: rgba(10,132,255,.45);
+}
+ 
+  /* Prevent iOS input overflow */
+input, select, textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+ 
+/* Time inputs full width */
+#totalTime, #orbitTime, #transTime, #aarTime {
+  width: 100%;
+  display: block;
+} 
     
   </style>
 </head>
-
+ 
 <body>
-
+ 
 <div id="launch" class="launch">
   <div class="launch-inner">
     <div class="reveal-wrap">
       <div class="reveal-text">E-3A Quick Planner</div>
       <div class="reveal-mask"></div>
     </div>
-
+ 
     <img class="launch-awacs" src="assets/awacs.png" alt="AWACS">
   </div>
 </div>
-
-  
+ 
+ 
   <div class="header">
     <div class="header-left">
       <img class="awacs-logo" src="./assets/awacs.png" alt="E-3A AWACS" />
       <h1>E-3A AWACS quick planner</h1>
     </div>
-
+ 
     <label class="switch" title="Light / Dark">
       <input id="themeToggle" type="checkbox" />
       <span class="slider"></span>
     </label>
   </div>
-
+ 
   <div class="tabs">
     <button id="tabFuel" class="tabbtn active">Fuel</button>
     <button id="tabWind" class="tabbtn">Wind</button>
   </div>
-
+ 
   <!-- FUEL TAB -->
   <div id="viewFuel">
     <div class="card">
@@ -211,14 +332,14 @@
         <option value="time">Time → required ramp fuel</option>
         <option value="fuel">Ramp fuel → max flight time</option>
       </select>
-
+ 
       <div style="height:10px"></div>
-
+ 
       <label>Total flight time (hh:mm)</label>
-      <input id="totalTime" type="time" step="300" value="06:30" placeholder="hh:mm">
-
+      <input id="totalTime" type="text" readonly>
+ 
       <div style="height:10px"></div>
-
+ 
       <label>Ramp fuel (klbs) — used for max flight time mode</label>
       <input id="rampFuelIn" type="text"
        inputmode="decimal"
@@ -227,9 +348,9 @@
        autocorrect="off"
        spellcheck="false"
        placeholder="e.g. 110.0">
-
+ 
       <div class="divider"></div>
-
+ 
       <div class="row">
         <div>
           <label>Destination / FOB (diversion table)</label>
@@ -240,7 +361,7 @@
           <select id="alt"></select>
         </div>
       </div>
-
+ 
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Diversion time</label>
@@ -252,17 +373,17 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="card">
       <label>Orbit / holding time (hh:mm)</label>
-      <input id="orbitTime" type="time" step="300" value="00:00" placeholder="hh:mm">
-
+      <input id="orbitTime" type="text" readonly>
+ 
       <label style="margin-top:10px;">Transition time (hh:mm)</label>
-      <input id="transTime" type="time" step="300" value="00:00" placeholder="hh:mm">
-
+      <input id="transTime" type="text" readonly>
+ 
       <label style="margin-top:10px;">AAR time (hh:mm)</label>
-      <input id="aarTime" type="time" step="300" value="00:00" placeholder="hh:mm">
-
+      <input id="aarTime"   type="text" readonly>
+ 
       <label style="margin-top:10px;">Received fuel from tanker (klbs)</label>
       <input id="aarRecv" type="text"
        inputmode="decimal"
@@ -272,7 +393,7 @@
        spellcheck="false"
        placeholder="e.g. 12.0">
     </div>
-
+ 
     <div class="card">
       <div class="chk">
         <input id="tripContOn" type="checkbox">
@@ -282,19 +403,19 @@
         <input id="orbitContOn" type="checkbox">
         <label for="orbitContOn" style="margin:0;color:var(--fg);font-size:14px;">Orbit contingency 3%</label>
       </div>
-
+ 
       <div class="divider"></div>
-
+ 
       <div class="kpi" id="fuelKPI">—</div>
-
+ 
       <table>
         <tbody>
           <tr><td>Taxi (fixed)</td><td class="mono" id="taxiOut">—</td></tr>
           <tr><td>Minimum overhead DEST (fixed)</td><td class="mono" id="minOverOut">—</td></tr>
           <tr><td>Diversion (DEST → ALT)</td><td class="mono" id="divFuelOut">—</td></tr>
-
+ 
           <tr><td><b>Trip fuel (computed)</b></td><td class="mono"><b id="tripFuelOut">—</b></td></tr>
-
+ 
           <tr class="sub"><td>Cruise</td><td class="mono" id="cruiseFuelOut">—</td></tr>
           <tr class="sub"><td>Orbit / holding (12/hr)</td><td class="mono" id="orbitFuelOut">—</td></tr>
           <tr class="sub"><td>Transition (15/hr)</td><td class="mono" id="transFuelOut">—</td></tr>
@@ -302,28 +423,28 @@
           <tr class="sub"><td>Trip contingency 5%</td><td class="mono" id="tripContOut">—</td></tr>
           <tr class="sub"><td>Orbit contingency 3%</td><td class="mono" id="orbitContOut">—</td></tr>
           <tr class="sub"><td>Received from tanker</td><td class="mono" id="recvOut">—</td></tr>
-
+ 
           <tr><td><b>Required ramp fuel</b></td><td class="mono"><b id="reqRampOut">—</b></td></tr>
           <tr><td>Margin vs entered ramp fuel</td><td class="mono" id="marginOut">—</td></tr>
           <tr><td><b>Max flight time (from ramp fuel input)</b></td><td class="mono"><b id="maxTimeOut">—</b></td></tr>
         </tbody>
       </table>
-
+ 
       <div class="btnrow">
         <button id="copyFuelBtn">Copy fuel summary</button>
         <button id="resetFuelBtn">Reset</button>
       </div>
     </div>
-
+ 
     <div class="disclaimer">for reference only</div>
   </div>
-
+ 
   <!-- WIND TAB -->
   <div id="viewWind" class="hidden">
     <div class="card">
       <label>Runway (e.g. 27, 09, 36)</label>
       <input id="rwy" type="text" value="27" inputmode="numeric" placeholder="27">
-
+ 
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Operation</label>
@@ -341,7 +462,7 @@
           </div>
         </div>
       </div>
-
+ 
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Wind direction (°)</label>
@@ -352,29 +473,29 @@
           <input id="windSpd" type="text" inputmode="numeric" min="0" step="1" value="15">
         </div>
       </div>
-
+ 
       <label style="margin-top:10px;">Gust (kt) — optional</label>
       <input id="windGust" type="text" inputmode="numeric" min="0" step="1" placeholder="e.g. 25">
     </div>
-
+ 
     <div class="card">
       <div class="kpi" id="windStatus">—</div>
-
+ 
       <table>
         <tbody>
           <tr><td>Runway heading</td><td class="mono" id="rwyHdgOut">—</td></tr>
           <tr><td>Angle (Δ)</td><td class="mono" id="deltaOut">—</td></tr>
-
+ 
           <tr><td>Head/Tailwind</td><td class="mono" id="htOut">—</td></tr>
           <tr><td>Crosswind</td><td class="mono" id="xwOut">—</td></tr>
-
+ 
           <tr><td>Active limits</td><td class="mono" id="limitsOut">—</td></tr>
           <tr><td>Margin to nearest limit</td><td class="mono" id="marginWindOut">—</td></tr>
         </tbody>
       </table>
-
+ 
       <div class="divider"></div>
-
+ 
       <label>Quick reference (steady only)</label>
       <table>
         <tbody>
@@ -382,20 +503,20 @@
           <tr><td id="qrB_lbl">—</td><td class="mono" id="qrB">—</td></tr>
         </tbody>
       </table>
-
+ 
       <div class="btnrow">
         <button id="copyWindBtn">Copy wind summary</button>
         <button id="resetWindBtn">Reset</button>
       </div>
     </div>
-
+ 
     <div class="disclaimer">for reference only</div>
   </div>
-
+ 
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-
+ 
   // THEME
   const savedTheme = localStorage.getItem("e3a_theme");
   if (savedTheme === "dark") { document.body.classList.add("dark"); $("themeToggle").checked = true; }
@@ -403,7 +524,7 @@
     document.body.classList.toggle("dark", $("themeToggle").checked);
     localStorage.setItem("e3a_theme", $("themeToggle").checked ? "dark" : "light");
   });
-
+ 
   // TABS
   function setTab(which){
     const fuel = which === "fuel";
@@ -414,8 +535,143 @@
   }
   $("tabFuel").addEventListener("click", () => setTab("fuel"));
   $("tabWind").addEventListener("click", () => setTab("wind"));
-
+ 
   // HELPERS
+ 
+// ===== Custom Time Picker (5-min steps) =====
+let tpTargetId = null;
+ 
+function tpPad2(n){ return String(n).padStart(2,"0"); }
+ 
+function tpBuildWheels(){
+  const h = $("tpHours");
+  const m = $("tpMins");
+  if(!h || !m) return;
+ 
+  if(h.childElementCount === 0){
+    for(let i=0;i<24;i++){
+      const d=document.createElement("div");
+      d.className="tp-item";
+      d.textContent=tpPad2(i);
+      h.appendChild(d);
+    }
+  }
+  if(m.childElementCount === 0){
+    for(let i=0;i<60;i+=5){
+      const d=document.createElement("div");
+      d.className="tp-item";
+      d.textContent=tpPad2(i);
+      m.appendChild(d);
+    }
+  }
+}
+ 
+function tpScrollToValue(wheelEl, valueText){
+  const items = [...wheelEl.querySelectorAll(".tp-item")];
+  const idx = Math.max(0, items.findIndex(x=>x.textContent===valueText));
+  const itemH = 42; // must match CSS
+  wheelEl.scrollTop = idx * itemH;
+}
+ 
+function tpSnap(wheelEl){
+  const itemH = 42;
+  const idx = Math.round(wheelEl.scrollTop / itemH);
+  wheelEl.scrollTop = idx * itemH;
+}
+ 
+function tpGetSelected(wheelEl){
+  const itemH = 42;
+  const idx = Math.round(wheelEl.scrollTop / itemH);
+  const items = wheelEl.querySelectorAll(".tp-item");
+  const el = items[Math.min(items.length-1, Math.max(0, idx))];
+  return el ? el.textContent : "00";
+}
+ 
+function openTimePicker(targetId, titleText){
+  tpTargetId = targetId;
+  tpBuildWheels();
+ 
+  $("tpTitle").textContent = titleText || "Set time";
+  const modal = $("timeModal");
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+ 
+  // Init wheels from current value (fallback 00:00)
+  const cur = ($(targetId).value || "00:00").trim();
+  const parts = cur.split(":");
+  const hh = tpPad2(parseInt(parts[0]||"0",10)||0);
+  let mm = parseInt(parts[1]||"0",10)||0;
+  mm = Math.round(mm/5)*5;
+  if(mm===60){ mm=55; } // clamp
+  const mmTxt = tpPad2(mm);
+ 
+  tpScrollToValue($("tpHours"), hh);
+  tpScrollToValue($("tpMins"), mmTxt);
+ 
+  // snap after open
+  setTimeout(()=>{
+    tpSnap($("tpHours"));
+    tpSnap($("tpMins"));
+  }, 0);
+}
+ 
+function closeTimePicker(){
+  const modal = $("timeModal");
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden","true");
+  tpTargetId = null;
+}
+ 
+function tpCommit(){
+  if(!tpTargetId) return closeTimePicker();
+  const hh = tpGetSelected($("tpHours"));
+  const mm = tpGetSelected($("tpMins"));
+  $(tpTargetId).value = `${hh}:${mm}`;
+ 
+  // trigger your existing calc
+  $(tpTargetId).dispatchEvent(new Event("change", {bubbles:true}));
+  closeTimePicker();
+}
+ 
+function tpWire(){
+  const modal = $("timeModal");
+  if(!modal) return;
+ 
+  ["tpHours","tpMins"].forEach(id=>{
+    const el = $(id);
+    el.addEventListener("scroll", ()=>{
+      // snap after user stops scrolling (debounce)
+      clearTimeout(el._tpT);
+      el._tpT = setTimeout(()=>tpSnap(el), 80);
+    }, {passive:true});
+  });
+ 
+  $("tpCancel").addEventListener("click", closeTimePicker);
+  $("tpOk").addEventListener("click", tpCommit);
+ 
+  // tap outside card closes
+  modal.addEventListener("click", (e)=>{
+    if(e.target === modal) closeTimePicker();
+  });
+}
+ 
+// Call once after DOM is ready (your script is at bottom, so OK)
+tpWire();
+ 
+function roundTimeTo5(id){
+  const el = $(id);
+  if(!el || !el.value) return;
+  const [hh, mm] = el.value.split(":").map(x=>parseInt(x,10));
+  if(!isFinite(hh) || !isFinite(mm)) return;
+ 
+  const total = hh*60 + mm;
+  const rounded = Math.round(total/5)*5;
+  const rh = Math.floor(rounded/60) % 24;
+  const rm = rounded % 60;
+ 
+  el.value = String(rh).padStart(2,"0") + ":" + String(rm).padStart(2,"0");
+}
+ 
   function parseHHMM(s){
     if (!s) return NaN;
     const t = String(s).trim();
@@ -441,14 +697,14 @@
   const n = parseFloat(normalized);
   return isFinite(n) ? n : 0;
 }
-
-
+ 
+ 
   // =========================
   // FUEL (unchanged)
   // =========================
   const TAXI = 1.8;
   const MIN_OVERHEAD_DEST = 14.0;
-
+ 
   const TABLES = {
     "MOB Geilenkirchen": [
       { alt:"Norvenich (ETNN)", time:"0:06", fuel:1.0 },
@@ -512,7 +768,7 @@
       { alt:"Waddington (EGXW)", time:"2:41", fuel:35.2 },
     ],
   };
-
+ 
   function populateDest(){
     $("dest").innerHTML = "";
     Object.keys(TABLES).forEach(k => {
@@ -538,25 +794,25 @@
     $("divTime").value = r.time;
     $("divFuel").value = fmt1(r.fuel) + " klbs";
   }
-
+ 
   function calcFuel(){
     const mode = $("fuelMode").value;
-
-    const totalH = parseHHMM($("totalTime").value);
+ 
+   const totalH = parseHHMM($("totalTime").value);
     const orbitH_in = Math.max(0, parseHHMM($("orbitTime").value) || 0);
     const transH_in = Math.max(0, parseHHMM($("transTime").value) || 0);
     const aarH_in   = Math.max(0, parseHHMM($("aarTime").value) || 0);
     const recv      = Math.max(0, Number($("aarRecv").value || 0));
-
+ 
     const d = $("dest").value;
     const idx = Number($("alt").value || 0);
     const divertFuel = TABLES[d][idx].fuel;
-
+ 
     if (!isFinite(totalH) || totalH < 0) { $("fuelKPI").textContent = "—"; return; }
-
+ 
     const firstH = Math.min(2.0, totalH);
     const postH  = Math.max(0.0, totalH - 2.0);
-
+ 
     let orbitH = 0, transH = 0, aarH = 0;
     if (postH > 0) {
       const sum = orbitH_in + transH_in + aarH_in;
@@ -569,25 +825,25 @@
         orbitH = orbitH_in; transH = transH_in; aarH = aarH_in;
       }
     }
-
+ 
     const specialSum = orbitH + transH + aarH;
     const cruisePostH = Math.max(0.0, postH - specialSum);
-
+ 
     const cruiseFuel = (firstH * 20.0) + (cruisePostH * 12.0);
     const orbitFuel  = orbitH * 12.0;
     const transFuel  = transH * 15.0;
     const aarFuel    = aarH   * 16.0;
-
+ 
     const tripCont = $("tripContOn").checked ? ((cruiseFuel + orbitFuel + transFuel + aarFuel) * 0.05) : 0.0;
     const orbitCont = $("orbitContOn").checked ? (orbitFuel * 0.03) : 0.0;
-
+ 
     const tripComputed = cruiseFuel + orbitFuel + transFuel + aarFuel + tripCont + orbitCont - recv;
     const reqRamp = TAXI + MIN_OVERHEAD_DEST + divertFuel + tripComputed;
-
+ 
     $("taxiOut").textContent = fmt1(TAXI) + " klbs";
     $("minOverOut").textContent = fmt1(MIN_OVERHEAD_DEST) + " klbs";
     $("divFuelOut").textContent = fmt1(divertFuel) + " klbs";
-
+ 
     $("tripFuelOut").textContent = fmt1(tripComputed) + " klbs";
     $("cruiseFuelOut").textContent = fmt1(cruiseFuel) + " klbs";
     $("orbitFuelOut").textContent = fmt1(orbitFuel) + " klbs";
@@ -596,9 +852,9 @@
     $("tripContOut").textContent = fmt1(tripCont) + " klbs";
     $("orbitContOut").textContent = fmt1(orbitCont) + " klbs";
     $("recvOut").textContent = "-" + fmt1(recv) + " klbs";
-
+ 
     $("reqRampOut").textContent = fmt1(reqRamp) + " klbs";
-
+ 
     const rampIn = num("rampFuelIn");
     if (isFinite(rampIn) && $("rampFuelIn").value.trim() !== "") {
       const margin = rampIn - reqRamp;
@@ -606,12 +862,12 @@
     } else {
       $("marginOut").textContent = "—";
     }
-
+ 
     let maxTime = "—";
     if (isFinite(rampIn) && $("rampFuelIn").value.trim() !== "") {
       const fixed = TAXI + MIN_OVERHEAD_DEST + divertFuel;
       const availableTrip = rampIn - fixed;
-
+ 
       if (availableTrip <= 0) {
         maxTime = "00:00";
       } else {
@@ -620,7 +876,7 @@
           const tH = m/60;
           const first = Math.min(2.0, tH);
           const post = Math.max(0.0, tH - 2.0);
-
+ 
           let oH=0,tHh=0,aH=0;
           if (post > 0) {
             const sum = orbitH_in + transH_in + aarH_in;
@@ -633,17 +889,17 @@
           }
           const special = oH + tHh + aH;
           const cruisePost = Math.max(0.0, post - special);
-
+ 
           const cFuel = (first*20.0) + (cruisePost*12.0);
           const oFuel = oH*12.0;
           const trFuel = tHh*15.0;
           const aaFuel = aH*16.0;
-
+ 
           const tc = $("tripContOn").checked ? ((cFuel+oFuel+trFuel+aaFuel)*0.05) : 0;
           const oc = $("orbitContOn").checked ? (oFuel*0.03) : 0;
-
+ 
           const tripComp = cFuel+oFuel+trFuel+aaFuel+tc+oc - recv;
-
+ 
           if (tripComp <= availableTrip + 1e-9) bestMin = m;
           else break;
         }
@@ -651,32 +907,32 @@
       }
     }
     $("maxTimeOut").textContent = maxTime;
-
+ 
     $("fuelKPI").textContent =
       (mode === "time")
         ? (fmt1(reqRamp) + " klbs required ramp")
         : ("Max flight time: " + maxTime);
   }
-
+ 
   async function copyFuel(){
     const d = $("dest").value;
     const idx = Number($("alt").value || 0);
     const alt = TABLES[d][idx].alt;
-
+ 
     const text =
 `E-3A Fuel (klbs)
 Mode: ${$("fuelMode").selectedOptions[0].textContent}
-
+ 
 Total time: ${$("totalTime").value}
 Orbit: ${$("orbitTime").value}
 Transition: ${$("transTime").value}
 AAR: ${$("aarTime").value}
 Received: ${$("aarRecv").value} klbs
-
+ 
 Destination: ${d}
 Alternate: ${alt}
 Diversion: ${$("divFuel").value}
-
+ 
 Trip fuel (computed): ${$("tripFuelOut").textContent}
   Cruise: ${$("cruiseFuelOut").textContent}
   Orbit (12/hr): ${$("orbitFuelOut").textContent}
@@ -685,12 +941,12 @@ Trip fuel (computed): ${$("tripFuelOut").textContent}
   Trip cont 5%: ${$("tripContOut").textContent}
   Orbit cont 3%: ${$("orbitContOut").textContent}
   Received: ${$("recvOut").textContent}
-
+ 
 Required ramp fuel: ${$("reqRampOut").textContent}
 Max flight time: ${$("maxTimeOut").textContent}
-
+ 
 for reference only`;
-
+ 
     try {
       await navigator.clipboard.writeText(text);
       $("copyFuelBtn").textContent = "Copied ✓";
@@ -699,7 +955,7 @@ for reference only`;
       alert("Clipboard not allowed.\n\n" + text);
     }
   }
-
+ 
   function resetFuel(){
     $("fuelMode").value = "time";
     $("totalTime").value = "01:30";
@@ -710,30 +966,32 @@ for reference only`;
     $("aarRecv").value = "0.0";
     $("tripContOn").checked = false;
     $("orbitContOn").checked = false;
-
+ 
     $("dest").value = Object.keys(TABLES)[0];
     populateAlt();
     $("alt").value = "0";
     setDivFields();
     calcFuel();
   }
-
+ 
   populateDest();
   populateAlt();
   setDivFields();
-
+ 
   $("dest").addEventListener("change", ()=>{ populateAlt(); $("alt").value="0"; setDivFields(); calcFuel(); });
   $("alt").addEventListener("change", ()=>{ setDivFields(); calcFuel(); });
-
+ 
   ["fuelMode","totalTime","rampFuelIn","orbitTime","transTime","aarTime","aarRecv"].forEach(id=>{
     $(id).addEventListener("input", calcFuel);
     $(id).addEventListener("change", calcFuel);
   });
   ["tripContOn","orbitContOn"].forEach(id => $(id).addEventListener("change", calcFuel));
-
+ 
   $("copyFuelBtn").addEventListener("click", copyFuel);
   $("resetFuelBtn").addEventListener("click", resetFuel);
-
+ 
+ 
+ 
   // =========================
   // WIND (fixed)
   // =========================
@@ -761,7 +1019,7 @@ for reference only`;
     const s = Math.round(spd);
     return `${String(d).padStart(3,"0")}/${s} kt`;
   }
-
+ 
   function windLimits(op, firstPilot){
     let xw = 25;
     if (op === "TNG_DRY") xw = 15;
@@ -769,24 +1027,24 @@ for reference only`;
     if (op === "LANDING" && firstPilot) xw = Math.min(xw, 15);
     return { xwLim: xw, twLim: 10, maxLim: 50 };
   }
-
+ 
   function componentsFor(speed, windDir, rwyHdg){
     const w = norm360(windDir);
     const r = norm360(rwyHdg === 360 ? 0 : rwyHdg);
     const signedDelta = norm180(w - r);
     const absDelta = Math.abs(signedDelta);
     const rad = absDelta * Math.PI / 180;
-
+ 
     const htMag = speed * Math.abs(Math.cos(rad));
     const crossMag = speed * Math.sin(rad);
-
+ 
     const isHead = absDelta <= 90;
     const ht = isHead ? htMag : -htMag;
-
+ 
     const xwSigned = (signedDelta >= 0 ? crossMag : -crossMag);
     return { signedDelta, absDelta, ht, xwAbs: Math.abs(xwSigned), xwSide: (xwSigned >= 0 ? "R" : "L") };
   }
-
+ 
   function violations(speed, comp, lim){
     const tail = comp.ht < 0 ? -comp.ht : 0;
     const vXW = comp.xwAbs > lim.xwLim + 1e-9;
@@ -797,30 +1055,30 @@ for reference only`;
     if (comp.ht < 0) margins.push(lim.twLim - tail);
     return { ok, tail, vXW, vTW, vMax, minMargin: Math.min(...margins) };
   }
-
+ 
   function maxAllowedSpeedSameAngle(comp, lim){
     const rad = comp.absDelta * Math.PI/180;
     const sinv = Math.sin(rad);
     const cosAbs = Math.abs(Math.cos(rad));
-
+ 
     let vmax = lim.maxLim;
     if (sinv > 1e-9) vmax = Math.min(vmax, lim.xwLim / sinv);
     if (comp.absDelta > 90 && cosAbs > 1e-9) vmax = Math.min(vmax, lim.twLim / cosAbs);
     return vmax;
   }
-
+ 
   function nearestDeltaAtSameSpeed(speed, currentAbsDelta, lim, wantInLimits){
     let best = null, bestDiff = Infinity;
     for (let d = 0; d <= 180; d += 0.1) {
       const rad = d * Math.PI/180;
       const xw = speed * Math.sin(rad);
       const tail = (d > 90) ? speed * (-Math.cos(rad)) : 0;
-
+ 
       const vXW = xw > lim.xwLim + 1e-9;
       const vMax = speed > lim.maxLim + 1e-9;
       const vTW = tail > lim.twLim + 1e-9;
       const isIn = !(vXW || vTW || vMax);
-
+ 
       if (wantInLimits ? isIn : !isIn) {
         const diff = Math.abs(d - currentAbsDelta);
         if (diff < bestDiff) { bestDiff = diff; best = d; }
@@ -828,54 +1086,54 @@ for reference only`;
     }
     return best;
   }
-
+ 
   function calcWind(){
     const rwy = parseRunwayHeading($("rwy").value);
     const op = $("op").value;
     const firstPilot = $("firstPilot").checked;
-
+ 
     const wdir = norm360($("windDir").value);
     const wspd = Number($("windSpd").value);
     const gustIn = $("windGust").value.trim();
     const gust = gustIn === "" ? NaN : Number(gustIn);
-
+ 
     if (!isFinite(rwy) || !isFinite(wdir) || !isFinite(wspd) || wspd < 0) {
       setText("windStatus","—");
       ["rwyHdgOut","deltaOut","htOut","xwOut","limitsOut","marginWindOut","qrA_lbl","qrA","qrB_lbl","qrB"].forEach(id=>setText(id,"—"));
       return;
     }
-
+ 
     const lim = windLimits(op, firstPilot);
-
+ 
     const compS = componentsFor(wspd, wdir, rwy);
     const vioS = violations(wspd, compS, lim);
-
+ 
     const hasGust = isFinite(gust) && gust >= 0;
     const gustSpd = hasGust ? gust : NaN;
     const compG = hasGust ? componentsFor(gustSpd, wdir, rwy) : null;
     const vioG = hasGust ? violations(gustSpd, compG, lim) : null;
-
+ 
     const okAll = vioS.ok && (!hasGust || vioG.ok);
-
+ 
     const steadyCaution = vioS.minMargin >= 0 && vioS.minMargin < 5;
     const gustCaution = hasGust ? (vioG.minMargin >= 0 && vioG.minMargin < 5) : false;
-
+ 
     let statusTxt = "OK", statusClass = "ok";
     if (!okAll) { statusTxt = "NO-GO"; statusClass = "bad"; }
     else if (steadyCaution || gustCaution) { statusTxt = "CAUTION"; statusClass = "warn"; }
-
+ 
     setHTML("windStatus", `<span class="${statusClass}">${statusTxt}</span>`);
-
+ 
     setText("rwyHdgOut", (rwy === 360 ? "360°" : `${String(rwy).padStart(3,"0")}°`));
     setText("deltaOut", `${compS.absDelta.toFixed(0)}°`);
-
+ 
     // Per-row coloring rules:
     // - Base value red if that row's *steady* limit is exceeded (plus max-wind where relevant).
     // - Gust value red only if gust violates that row's limit (plus max-wind where relevant).
     // - If BOTH steady and gust are out of limits, whole row red anyway (via base red + gust red).
     const htBaseBad = (vioS.vTW || vioS.vMax);
     const xwBaseBad = (vioS.vXW || vioS.vMax);
-
+ 
     const htLabelS = compS.ht >= 0 ? `HW ${Math.abs(compS.ht).toFixed(1)} kt` : `TW ${Math.abs(compS.ht).toFixed(1)} kt`;
     let htG_html = "";
     if (hasGust){
@@ -884,7 +1142,7 @@ for reference only`;
       htG_html = ` • <span class="${htG_bad ? "bad" : ""}">${htLabelG}</span>`;
     }
     setHTML("htOut", `<span class="${htBaseBad ? "bad" : ""}">${htLabelS}</span>${htG_html}`);
-
+ 
     const xwLabelS = `XW ${compS.xwAbs.toFixed(1)} kt (${compS.xwSide})`;
     let xwG_html = "";
     if (hasGust){
@@ -893,10 +1151,10 @@ for reference only`;
       xwG_html = ` • <span class="${xwG_bad ? "bad" : ""}">${xwLabelG}</span>`;
     }
     setHTML("xwOut", `<span class="${xwBaseBad ? "bad" : ""}">${xwLabelS}</span>${xwG_html}`);
-
+ 
     const opLabel = (op==="TNG_DRY"?"TNG Dry":op==="TNG_WET"?"TNG Wet":op==="LANDING"?"Landing":"Takeoff");
     setText("limitsOut", `XW ≤ ${lim.xwLim} | TW ≤ ${lim.twLim} | Max ≤ ${lim.maxLim} (${opLabel})`);
-
+ 
     function nearestLabel(vio, speed, comp){
       const parts = [];
       parts.push({k:"Max wind", v: lim.maxLim - speed});
@@ -917,17 +1175,17 @@ for reference only`;
       marginHtml += `<br>${g}`;
     }
     setHTML("marginWindOut", marginHtml);
-
+ 
     // Quick reference is ALWAYS steady-only
     const vAllowSameAngle = maxAllowedSpeedSameAngle(compS, lim);
-
+ 
     if (!vioS.ok){
       $("qrA_lbl").textContent = "Just in limits (same angle):";
       $("qrB_lbl").textContent = "Just in limits (same speed):";
-
+ 
       const vIn = Math.max(0, Math.floor(vAllowSameAngle));
       setText("qrA", fmtDirSpd(wdir, vIn));
-
+ 
       const targetAbs = nearestDeltaAtSameSpeed(wspd, compS.absDelta, lim, true);
       const sign = (compS.signedDelta >= 0) ? +1 : -1;
       const newDir = (targetAbs == null) ? NaN : norm360((rwy === 360 ? 0 : rwy) + sign * targetAbs);
@@ -935,42 +1193,42 @@ for reference only`;
     } else {
       $("qrA_lbl").textContent = "Just out of limits (same angle):";
       $("qrB_lbl").textContent = "Just out of limits (same speed):";
-
+ 
       // Fix: smallest integer speed that is OUT of limits (at same angle) is floor(vAllow)+1
       const vOut = Math.max(0, Math.floor(vAllowSameAngle) + 1);
       setText("qrA", fmtDirSpd(wdir, vOut));
-
+ 
       const targetAbsOut = nearestDeltaAtSameSpeed(wspd, compS.absDelta, lim, false);
       const sign = (compS.signedDelta >= 0) ? +1 : -1;
       const newDir = (targetAbsOut == null) ? NaN : norm360((rwy === 360 ? 0 : rwy) + sign * targetAbsOut);
       setText("qrB", (isFinite(newDir) ? fmtDirSpd(newDir, wspd) : "—"));
     }
   }
-
+ 
   async function copyWind(){
     const rwy = parseRunwayHeading($("rwy").value);
     const op = $("op").selectedOptions[0].textContent;
     const fp = $("firstPilot").checked ? "Yes" : "No";
-
+ 
     const wdir = norm360($("windDir").value);
     const wspd = Number($("windSpd").value);
     const gustIn = $("windGust").value.trim();
-
+ 
     const text =
 `E-3A Wind
 RWY: ${$("rwy").value} (${isFinite(rwy)?String(rwy).padStart(3,"0")+"°":"—"})
 Operation: ${op}
 First pilot: ${fp}
-
+ 
 Wind: ${fmtDirSpd(wdir, wspd)}${gustIn!=="" ? " G"+Math.round(Number(gustIn)) : ""}
-
+ 
 Result: ${$("windStatus").textContent}
 Head/Tail: ${$("htOut").textContent}
 Crosswind: ${$("xwOut").textContent}
 Limits: ${$("limitsOut").textContent}
-
+ 
 for reference only`;
-
+ 
     try{
       await navigator.clipboard.writeText(text);
       $("copyWindBtn").textContent = "Copied ✓";
@@ -979,7 +1237,7 @@ for reference only`;
       alert("Clipboard not allowed.\n\n" + text);
     }
   }
-
+ 
   function resetWind(){
     $("rwy").value = "27";
     $("op").value = "LANDING";
@@ -989,14 +1247,23 @@ for reference only`;
     $("windGust").value = "";
     calcWind();
   }
-
+ 
   ["rwy","op","firstPilot","windDir","windSpd","windGust"].forEach(id=>{
     $(id).addEventListener("input", calcWind);
     $(id).addEventListener("change", calcWind);
   });
   $("copyWindBtn").addEventListener("click", copyWind);
   $("resetWindBtn").addEventListener("click", resetWind);
-
+ 
+[
+  ["totalTime", "Total flight time"],
+  ["orbitTime", "Orbit / holding time"],
+  ["transTime", "Transition time"],
+  ["aarTime",   "AAR time"]
+].forEach(([id,label])=>{
+  $(id).addEventListener("click", ()=>openTimePicker(id, label));
+});
+ 
   // INIT
   calcFuel();
   resetWind();
@@ -1016,11 +1283,11 @@ for reference only`;
   window.addEventListener("load", () => {
     const el = document.getElementById("launch");
     if (!el) return;
-
+ 
     // Optional: only once per session
     // if (sessionStorage.getItem("launchDone") === "1") { el.remove(); return; }
     // sessionStorage.setItem("launchDone","1");
-
+ 
     // Remove after animation
     setTimeout(() => {
       el.style.transition = "opacity .25s ease";
@@ -1029,6 +1296,32 @@ for reference only`;
     }, 1900);
   });
 </script>
-
+ 
+<!-- Time Picker Modal (custom, 5-min steps) -->
+<div id="timeModal" class="tp-overlay" aria-hidden="true">
+  <div class="tp-card" role="dialog" aria-modal="true" aria-label="Time picker">
+    <div class="tp-title" id="tpTitle">Set time</div>
+ 
+    <div class="tp-wheels">
+      <div class="tp-wheel-wrap">
+        <div class="tp-wheel-label">HH</div>
+        <div id="tpHours" class="tp-wheel" tabindex="0"></div>
+      </div>
+ 
+      <div class="tp-sep">:</div>
+ 
+      <div class="tp-wheel-wrap">
+        <div class="tp-wheel-label">MM</div>
+        <div id="tpMins" class="tp-wheel" tabindex="0"></div>
+      </div>
+    </div>
+ 
+    <div class="tp-actions">
+      <button type="button" id="tpCancel" class="tp-btn">Cancel</button>
+      <button type="button" id="tpOk" class="tp-btn tp-primary">OK</button>
+    </div>
+  </div>
+</div>
+ 
 </body>
 </html>
