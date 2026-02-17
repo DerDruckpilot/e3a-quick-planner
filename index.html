@@ -168,117 +168,7 @@
   .reveal-mask{ transform:translateX(110%); }
 }
  
-    /* ===== Custom Time Picker (iOS-like) ===== */
-.tp-overlay{
-  position:fixed; inset:0;
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  background:rgba(0,0,0,.55);
-  z-index:9999;
-  padding: 18px;
-}
-.tp-overlay.show{ display:flex; }
- 
-.tp-card{
-  width:min(560px, 100%);
-  border-radius:20px;
-  padding:14px 14px 12px;
-  background: rgba(24,24,26,.96);
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 18px 50px rgba(0,0,0,.6);
-  backdrop-filter: blur(18px);
-}
- 
-.tp-title{
-  font-size:16px;
-  font-weight:700;
-  color: rgba(255,255,255,.92);
-  text-align:center;
-  margin: 6px 0 10px;
-}
- 
-.tp-wheels{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:14px;
-  padding: 6px 0 10px;
-}
- 
-.tp-wheel-wrap{ width:120px; }
-.tp-wheel-label{
-  font-size:12px;
-  opacity:.65;
-  text-align:center;
-  margin-bottom:6px;
-}
- 
-.tp-sep{
-  font-size:28px;
-  opacity:.8;
-  margin-top:12px;
-}
- 
-.tp-wheel{
-  height: 170px;
-  overflow-y:auto;
-  scrollbar-width:none;
-  -ms-overflow-style:none;
-  scroll-snap-type: y mandatory;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.04);
-  padding: 62px 0; /* center highlight area */
-  position:relative;
-}
-.tp-wheel::-webkit-scrollbar{ display:none; }
- 
-.tp-wheel::before{
-  content:"";
-  position:absolute;
-  left:10px; right:10px;
-  top:50%;
-  height: 42px;
-  transform: translateY(-50%);
-  border-radius:12px;
-  background: rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
-  pointer-events:none;
-}
- 
-.tp-item{
-  scroll-snap-align: center;
-  height: 42px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  font-weight:600;
-  color: rgba(255,255,255,.92);
-  user-select:none;
-}
- 
-.tp-actions{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-.tp-btn{
-  flex:1;
-  border-radius:14px;
-  padding: 12px 10px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.92);
-  font-weight:700;
-}
-.tp-primary{
-  background: rgba(10,132,255,.25);
-  border-color: rgba(10,132,255,.45);
-}
- 
-  /* Prevent iOS input overflow */
+    /* Prevent iOS input overflow */
 input, select, textarea {
   box-sizing: border-box;
   max-width: 100%;
@@ -336,7 +226,7 @@ input, select, textarea {
       <div style="height:10px"></div>
  
       <label>Total flight time (hh:mm)</label>
-      <input id="totalTime" type="text" readonly>
+      <input id="totalTime" type="time" step="60" value="01:30">
  
       <div style="height:10px"></div>
  
@@ -365,24 +255,24 @@ input, select, textarea {
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Diversion time</label>
-          <input id="divTime" readonly>
+          <input id="divTime">
         </div>
         <div>
           <label>Diversion fuel</label>
-          <input id="divFuel" readonly>
+          <input id="divFuel">
         </div>
       </div>
     </div>
  
     <div class="card">
       <label>Orbit / holding time (hh:mm)</label>
-      <input id="orbitTime" type="text" readonly>
+      <input id="orbitTime" type="time" step="60" value="00:00">
  
       <label style="margin-top:10px;">Transition time (hh:mm)</label>
-      <input id="transTime" type="text" readonly>
+      <input id="transTime" type="time" step="60" value="00:00">
  
       <label style="margin-top:10px;">AAR time (hh:mm)</label>
-      <input id="aarTime"   type="text" readonly>
+      <input id="aarTime" type="time" step="60" value="00:00">
  
       <label style="margin-top:10px;">Received fuel from tanker (klbs)</label>
       <input id="aarRecv" type="text"
@@ -538,141 +428,7 @@ input, select, textarea {
  
   // HELPERS
  
-// ===== Custom Time Picker (5-min steps) =====
-let tpTargetId = null;
- 
-function tpPad2(n){ return String(n).padStart(2,"0"); }
- 
-function tpBuildWheels(){
-  const h = $("tpHours");
-  const m = $("tpMins");
-  if(!h || !m) return;
- 
-  if(h.childElementCount === 0){
-    for(let i=0;i<24;i++){
-      const d=document.createElement("div");
-      d.className="tp-item";
-      d.textContent=tpPad2(i);
-      h.appendChild(d);
-    }
-  }
-  if(m.childElementCount === 0){
-    for(let i=0;i<60;i+=5){
-      const d=document.createElement("div");
-      d.className="tp-item";
-      d.textContent=tpPad2(i);
-      m.appendChild(d);
-    }
-  }
-}
- 
-function tpScrollToValue(wheelEl, valueText){
-  const items = [...wheelEl.querySelectorAll(".tp-item")];
-  const idx = Math.max(0, items.findIndex(x=>x.textContent===valueText));
-  const itemH = 42; // must match CSS
-  wheelEl.scrollTop = idx * itemH;
-}
- 
-function tpSnap(wheelEl){
-  const itemH = 42;
-  const idx = Math.round(wheelEl.scrollTop / itemH);
-  wheelEl.scrollTop = idx * itemH;
-}
- 
-function tpGetSelected(wheelEl){
-  const itemH = 42;
-  const idx = Math.round(wheelEl.scrollTop / itemH);
-  const items = wheelEl.querySelectorAll(".tp-item");
-  const el = items[Math.min(items.length-1, Math.max(0, idx))];
-  return el ? el.textContent : "00";
-}
- 
-function openTimePicker(targetId, titleText){
-  tpTargetId = targetId;
-  tpBuildWheels();
- 
-  $("tpTitle").textContent = titleText || "Set time";
-  const modal = $("timeModal");
-  modal.classList.add("show");
-  modal.setAttribute("aria-hidden","false");
- 
-  // Init wheels from current value (fallback 00:00)
-  const cur = ($(targetId).value || "00:00").trim();
-  const parts = cur.split(":");
-  const hh = tpPad2(parseInt(parts[0]||"0",10)||0);
-  let mm = parseInt(parts[1]||"0",10)||0;
-  mm = Math.round(mm/5)*5;
-  if(mm===60){ mm=55; } // clamp
-  const mmTxt = tpPad2(mm);
- 
-  tpScrollToValue($("tpHours"), hh);
-  tpScrollToValue($("tpMins"), mmTxt);
- 
-  // snap after open
-  setTimeout(()=>{
-    tpSnap($("tpHours"));
-    tpSnap($("tpMins"));
-  }, 0);
-}
- 
-function closeTimePicker(){
-  const modal = $("timeModal");
-  modal.classList.remove("show");
-  modal.setAttribute("aria-hidden","true");
-  tpTargetId = null;
-}
- 
-function tpCommit(){
-  if(!tpTargetId) return closeTimePicker();
-  const hh = tpGetSelected($("tpHours"));
-  const mm = tpGetSelected($("tpMins"));
-  $(tpTargetId).value = `${hh}:${mm}`;
- 
-  // trigger your existing calc
-  $(tpTargetId).dispatchEvent(new Event("change", {bubbles:true}));
-  closeTimePicker();
-}
- 
-function tpWire(){
-  const modal = $("timeModal");
-  if(!modal) return;
- 
-  ["tpHours","tpMins"].forEach(id=>{
-    const el = $(id);
-    el.addEventListener("scroll", ()=>{
-      // snap after user stops scrolling (debounce)
-      clearTimeout(el._tpT);
-      el._tpT = setTimeout(()=>tpSnap(el), 80);
-    }, {passive:true});
-  });
- 
-  $("tpCancel").addEventListener("click", closeTimePicker);
-  $("tpOk").addEventListener("click", tpCommit);
- 
-  // tap outside card closes
-  modal.addEventListener("click", (e)=>{
-    if(e.target === modal) closeTimePicker();
-  });
-}
- 
-// Call once after DOM is ready (your script is at bottom, so OK)
-tpWire();
- 
-function roundTimeTo5(id){
-  const el = $(id);
-  if(!el || !el.value) return;
-  const [hh, mm] = el.value.split(":").map(x=>parseInt(x,10));
-  if(!isFinite(hh) || !isFinite(mm)) return;
- 
-  const total = hh*60 + mm;
-  const rounded = Math.round(total/5)*5;
-  const rh = Math.floor(rounded/60) % 24;
-  const rm = rounded % 60;
- 
-  el.value = String(rh).padStart(2,"0") + ":" + String(rm).padStart(2,"0");
-}
- 
-  function parseHHMM(s){
+function parseHHMM(s){
     if (!s) return NaN;
     const t = String(s).trim();
     const m = t.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
@@ -1255,16 +1011,7 @@ for reference only`;
   $("copyWindBtn").addEventListener("click", copyWind);
   $("resetWindBtn").addEventListener("click", resetWind);
  
-[
-  ["totalTime", "Total flight time"],
-  ["orbitTime", "Orbit / holding time"],
-  ["transTime", "Transition time"],
-  ["aarTime",   "AAR time"]
-].forEach(([id,label])=>{
-  $(id).addEventListener("click", ()=>openTimePicker(id, label));
-});
- 
-  // INIT
+// INIT
   calcFuel();
   resetWind();
   setTab("fuel");
@@ -1297,28 +1044,10 @@ for reference only`;
   });
 </script>
  
-<!-- Time Picker Modal (custom, 5-min steps) -->
-<div id="timeModal" class="tp-overlay" aria-hidden="true">
-  <div class="tp-card" role="dialog" aria-modal="true" aria-label="Time picker">
-    <div class="tp-title" id="tpTitle">Set time</div>
  
-    <div class="tp-wheels">
-      <div class="tp-wheel-wrap">
-        <div class="tp-wheel-label">HH</div>
-        <div id="tpHours" class="tp-wheel" tabindex="0"></div>
-      </div>
- 
-      <div class="tp-sep">:</div>
- 
-      <div class="tp-wheel-wrap">
-        <div class="tp-wheel-label">MM</div>
-        <div id="tpMins" class="tp-wheel" tabindex="0"></div>
       </div>
     </div>
  
-    <div class="tp-actions">
-      <button type="button" id="tpCancel" class="tp-btn">Cancel</button>
-      <button type="button" id="tpOk" class="tp-btn tp-primary">OK</button>
     </div>
   </div>
 </div>
