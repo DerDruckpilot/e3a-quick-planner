@@ -187,22 +187,29 @@ input, select, textarea {
 } 
     
   
-/* --- iOS time input overflow fix --- */
-input[type="time"] {
+
+/* --- definitive iOS time input containment fix --- */
+
+.card input[type="time"] {
   width: 100%;
-  min-width: 0;
   max-width: 100%;
-  display: block;
+  min-width: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  display: block;
+  padding-right: 0;     /* important for iOS */
 }
 
 .row > * {
   min-width: 0;
+  flex: 1 1 0%;
 }
 
-input {
+input[type="time"]::-webkit-date-and-time-value {
   min-width: 0;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  margin-left: auto;
 }
 
 </style>
@@ -430,7 +437,7 @@ input {
  
 <script>
 (() => {
-  const BUILD_VERSION = "2026-02-17 11:25:59 UTC (dd47)";
+  const BUILD_VERSION = "2026-02-17 11:33:27 UTC (fbc9)";
   const $ = (id) => document.getElementById(id);
  
   // THEME
@@ -1065,7 +1072,7 @@ for reference only`;
  
     // Remove after animation
     setTimeout(() => {
-  const BUILD_VERSION = "2026-02-17 11:25:59 UTC (dd47)";
+  const BUILD_VERSION = "2026-02-17 11:33:27 UTC (fbc9)";
       el.style.transition = "opacity .25s ease";
       el.style.opacity = "0";
       setTimeout(() => el.remove(), 260);
@@ -1089,7 +1096,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 11:25:59 UTC (dd47)";
+    v.textContent = "Build: 2026-02-17 11:33:27 UTC (fbc9)";
     document.body.appendChild(v);
   });
 </script>
