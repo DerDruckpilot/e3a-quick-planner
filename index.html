@@ -239,6 +239,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .planTable td input{ margin:0; }
     .timeZ{ text-align:right; }
 
+
+    .btnSmall{ padding:8px 12px; border-radius:12px; border:1px solid var(--border); background:var(--tab); color:var(--fg); font-weight:800; }
+    .btnSmall.danger{ background:rgba(255,0,0,.08); }
+
+
+    #viewMsn .planTable input[type="time"]{ width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
 </style>
 </head>
  
@@ -351,10 +357,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
         <input id="tripContOn" type="checkbox">
         <label for="tripContOn" style="margin:0;color:var(--fg);font-size:14px;">Trip contingency 5%</label>
       </div>
+      <button id="btnExport" class="btnSmall">Export</button>
+      <button id="btnReset" class="btnSmall danger">Reset</button>
       <div class="chk">
         <input id="orbitContOn" type="checkbox">
         <label for="orbitContOn" style="margin:0;color:var(--fg);font-size:14px;">Orbit contingency 3%</label>
       </div>
+      <button id="btnExport" class="btnSmall">Export</button>
+      <button id="btnReset" class="btnSmall danger">Reset</button>
  
       <div class="divider"></div>
  
@@ -476,11 +486,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
         </div>
         <div>
           <label>Callsign</label>
-          <div class="prefixWrap">
-            <span class="prefixFixed">NATO</span>
-            <input id="msn_callsign_num" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false" placeholder="01">
-          </div>
-          <div class="mutedSmall" id="msn_callsign_full">NATO</div>
+          <input id="msn_callsign" type="text" autocomplete="off" spellcheck="false" value="NATO">
         </div>
       </div>
 
@@ -509,7 +515,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
       <div class="row" style="margin-top:10px;">
         <div>
           <label>Parking</label>
-          <input id="msn_parking" type="text" autocomplete="off" spellcheck="false">
+          <input id="msn_parking" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false">
         </div>
         <div>
           <label>Status</label>
@@ -546,13 +552,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           </tr>
         </thead>
         <tbody>
-          <tr><td>SHOW</td><td class="mono" id="msn_loc_show">—</td><td><input id="msn_z_show" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>BUS 1</td><td class="mono" id="msn_loc_bus1">—</td><td><input id="msn_z_bus1" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>BUS 2</td><td class="mono" id="msn_loc_bus2">—</td><td><input id="msn_z_bus2" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>B4 START</td><td class="mono" id="msn_loc_b4">—</td><td><input id="msn_z_b4" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>DOOR CLOSE</td><td class="mono" id="msn_loc_door">—</td><td><input id="msn_z_door" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>ENG START</td><td class="mono" id="msn_loc_eng">—</td><td><input id="msn_z_eng" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td><b>TAKEOFF</b></td><td class="mono" id="msn_loc_to">—</td><td><input id="msn_z_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td><b>TAKEOFF</b></td><td class="mono" id="msn_loc_to">—</td><td><input id="msn_z_to" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>SHOW</td><td class="mono" id="msn_loc_show">—</td><td><input id="msn_z_show" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>BUS 1</td><td class="mono" id="msn_loc_bus1">—</td><td><input id="msn_z_bus1" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>BUS 2</td><td class="mono" id="msn_loc_bus2">—</td><td><input id="msn_z_bus2" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>B4 START</td><td class="mono" id="msn_loc_b4">—</td><td><input id="msn_z_b4" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>DOOR CLOSE</td><td class="mono" id="msn_loc_door">—</td><td><input id="msn_z_door" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>ENG START</td><td class="mono" id="msn_loc_eng">—</td><td><input id="msn_z_eng" class="timeZ" type="time" step="60"></td></tr>
         </tbody>
       </table>
     </div>
@@ -567,14 +573,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           </tr>
         </thead>
         <tbody>
-          <tr><td>T/O</td><td><input id="msn_p_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_to" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>LAND</td><td><input id="msn_p_land" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_land" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>ON/S</td><td><input id="msn_p_ons" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_ons" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>OFF/S</td><td><input id="msn_p_offs" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_offs" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>AR START</td><td><input id="msn_p_arst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_arst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>AR END</td><td><input id="msn_p_arend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_arend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>TX START</td><td><input id="msn_p_txst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_txst" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
-          <tr><td>TX END</td><td><input id="msn_p_txend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td><td><input id="msn_a_txend" class="timeZ" type="text" inputmode="numeric" placeholder="HH:MM"></td></tr>
+          <tr><td>T/O</td><td><input id="msn_p_to" class="timeZ" type="time" step="60"></td><td><input id="msn_a_to" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>LAND</td><td><input id="msn_p_land" class="timeZ" type="time" step="60"></td><td><input id="msn_a_land" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>ON/S</td><td><input id="msn_p_ons" class="timeZ" type="time" step="60"></td><td><input id="msn_a_ons" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>OFF/S</td><td><input id="msn_p_offs" class="timeZ" type="time" step="60"></td><td><input id="msn_a_offs" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>AR START</td><td><input id="msn_p_arst" class="timeZ" type="time" step="60"></td><td><input id="msn_a_arst" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>AR END</td><td><input id="msn_p_arend" class="timeZ" type="time" step="60"></td><td><input id="msn_a_arend" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>TX START</td><td><input id="msn_p_txst" class="timeZ" type="time" step="60"></td><td><input id="msn_a_txst" class="timeZ" type="time" step="60"></td></tr>
+          <tr><td>TX END</td><td><input id="msn_p_txend" class="timeZ" type="time" step="60"></td><td><input id="msn_a_txend" class="timeZ" type="time" step="60"></td></tr>
         </tbody>
       </table>
 
@@ -586,8 +592,70 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           <input id="msn_dur" type="text" readonly>
         </div>
         <div>
-          <label>GAS (received fuel, klbs)</label>
-          <input id="msn_gas" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 12.5">
+          <label>T/O Fuel (klbs)</label>
+          <input id="msn_fuel_to" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 110.0">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>END AAR Fuel (klbs)</label>
+          <input id="msn_fuel_endaar" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 95.5">
+        </div>
+        <div>
+          <label>LAND Fuel (klbs)</label>
+          <input id="msn_fuel_land" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 60.2">
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="card">
+      <label>AAR Info</label>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Tanker Tail</label>
+          <input id="msn_tanker_tail" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>Unit</label>
+          <input id="msn_tanker_unit" type="text" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Offload (klbs)</label>
+          <input id="msn_tanker_offload" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>GAS (received from tanker, klbs)</label>
+          <input id="msn_tanker_gas" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false" placeholder="e.g. 12.5">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>END AR WT (klbs)</label>
+          <input id="msn_tanker_end_wt" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>END AR RQST (klbs)</label>
+          <input id="msn_tanker_end_rqst" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <label>Email morning of flight</label>
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Orders / CMD Post</label>
+          <input id="msn_email_orders" type="email" autocomplete="off" spellcheck="false" value="dummy@naew.nato.int">
+        </div>
+        <div>
+          <label>ORM / Safety</label>
+          <input id="msn_email_orm" type="email" autocomplete="off" spellcheck="false" value="dummy@naew.nato.int">
         </div>
       </div>
     </div>
@@ -659,7 +727,24 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   $("tabChecklist").addEventListener("click", () => setTab("checklist"));
   $("tabSeat").addEventListener("click", () => setTab("seat"));
 
-  const STORAGE_KEY = "e3a_planner_state_v1";
+  
+  function downloadState(){
+    const data = localStorage.getItem(STORAGE_KEY) || "{}";
+    const blob = new Blob([data], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "e3a_planner_state.json";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+  function resetState(){
+    if(!confirm("Reset all saved data on this device?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+  $("btnExport")?.addEventListener("click", downloadState);
+  $("btnReset")?.addEventListener("click", resetState);
+const STORAGE_KEY = "e3a_planner_state_v1";
   const CHECKLIST_ITEMS = [{"section": "MISSION PLANNING", "text": "APS Mission Overview", "tag": ""}, {"section": "MISSION PLANNING", "text": "WX Forecast", "tag": ""}, {"section": "MISSION PLANNING", "text": "Fuel Timeline", "tag": ""}, {"section": "MISSION PLANNING", "text": "Call WX (x6190)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Run TOLD w/ FE", "tag": ""}, {"section": "MISSION PLANNING", "text": "Joker & Bingo Fuel", "tag": ""}, {"section": "MISSION PLANNING", "text": "Dip Clearances (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Plan Request (SWAAI x6130/6131)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Notification of Overflight (NOF) (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "NOTAMS", "tag": ""}, {"section": "MISSION PLANNING", "text": "CFPS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Email MP Slides to TD", "tag": ""}, {"section": "MISSION PLANNING", "text": "Approach Request to CMD Post", "tag": ""}, {"section": "MISSION PLANNING", "text": "Change Request (OWES), NLT 1400", "tag": ""}, {"section": "MISSION PLANNING", "text": "ORM", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Orders", "tag": ""}, {"section": "MISSION PLANNING", "text": "Ops Brief", "tag": ""}, {"section": "MISSION PLANNING", "text": "Msn Pln'g Summary Report, NLT 1530", "tag": ""}, {"section": "MISSION PLANNING", "text": "Seat Flow / REVIEW STUD FOLDERS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Cut Card", "tag": ""}, {"section": "MISSION PLANNING", "text": "Print CFPS Flight Log", "tag": ""}, {"section": "MISSION PLANNING", "text": "CRD in \"Missions\" Folder", "tag": ""}, {"section": "MISSION PLANNING", "text": "Message Pilots/FE Details/Assignments", "tag": ""}, {"section": "FLY DAY", "text": "Mission Binder", "tag": ""}, {"section": "FLY DAY", "text": "M2 (if no MSN Crew)", "tag": ""}, {"section": "FLY DAY", "text": "Login to Brief", "tag": ""}, {"section": "FLY DAY", "text": "Check/Sign Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "Email Orders/ORM", "tag": ""}, {"section": "FLY DAY", "text": "3x Copies of Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "AIS", "tag": ""}, {"section": "FLY DAY", "text": "Flt Plan → Foreflight", "tag": ""}];
 
   function loadState(){
@@ -1485,23 +1570,20 @@ for reference only`;
     return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
   }
 
-  function updateCallsign(){
-    const el = $("msn_callsign_num");
-    if(!el) return;
-    const n = (el.value || "").replace(/\D/g,"");
-    el.value = n;
-    const full = "NATO" + (n || "");
-    const out = $("msn_callsign_full");
-    if(out) out.textContent = full;
-  }
+  function updateCallsign(){ /* editable callsign, no auto-format */ }
 
   function populateMsnAlternate(){
     const sel = $("msn_altSel");
     if(!sel) return;
-    sel.innerHTML = "";
+    const set = new Set();
     Object.keys(TABLES).forEach(k=>{
+      (TABLES[k]||[]).forEach(r=>{ if(r && r.alt) set.add(r.alt); });
+    });
+    const all = Array.from(set).sort((a,b)=>a.localeCompare(b));
+    sel.innerHTML = "";
+    all.forEach(name=>{
       const o=document.createElement("option");
-      o.value=k; o.textContent=k;
+      o.value=name; o.textContent=name;
       sel.appendChild(o);
     });
     const other=document.createElement("option");
@@ -1538,12 +1620,13 @@ for reference only`;
       return;
     }
 
-    const showOffset = $("msn_deice")?.checked ? -180 : -150;
+    const de = $("msn_deice")?.checked ? -30 : 0;
+    const showOffset = -150 + de;
     setIfNotEdited("msn_z_show", minutesToHHMM(toMin + showOffset));
-    setIfNotEdited("msn_z_bus1", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus1));
-    setIfNotEdited("msn_z_bus2", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus2));
+    setIfNotEdited("msn_z_bus1", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus1 + de));
+    setIfNotEdited("msn_z_bus2", minutesToHHMM(toMin + MSN_OFFSETS_MIN.bus2 + de));
     setIfNotEdited("msn_z_b4",   minutesToHHMM(toMin + MSN_OFFSETS_MIN.b4));
-    setIfNotEdited("msn_z_door", minutesToHHMM(toMin + MSN_OFFSETS_MIN.door));
+    setIfNotEdited("msn_z_door", minutesToHHMM(toMin + MSN_OFFSETS_MIN.door + de));
     setIfNotEdited("msn_z_eng",  minutesToHHMM(toMin + MSN_OFFSETS_MIN.eng));
 
     $("msn_loc_show").textContent = zuluToLocalStr($("msn_z_show").value);
@@ -1565,16 +1648,17 @@ for reference only`;
     let diff = landA - toA;
     if(diff < 0) diff += 1440;
     const hrs = diff / 60.0;
-    if($("msn_dur")) $("msn_dur").value = (Math.round(hrs*10)/10).toString();
+    if($("msn_dur")) {
+      const v = (Math.round(hrs*100)/100).toFixed(2).replace(".", ",");
+      $("msn_dur").value = v;
+    }
   }
 
   function wireMsn(){
     if(!$("viewMsn")) return;
 
-    if ($("msn_callsign_num")){
-      $("msn_callsign_num").addEventListener("input", updateCallsign);
-      $("msn_callsign_num").addEventListener("change", updateCallsign);
-      updateCallsign();
+    if ($("msn_callsign")){
+      /* no special handling */
     }
 
     if ($("msn_altSel")){
@@ -1692,7 +1776,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 12:20:35 UTC (4634)";
+    v.textContent = "Build: 2026-02-17 15:57:57 UTC (c3a2)";
     document.body.appendChild(v);
   });
 </script>
