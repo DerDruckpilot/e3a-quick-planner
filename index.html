@@ -258,6 +258,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .modalBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:0; }
     .modalSheet{ position:absolute; left:12px; right:12px; bottom:12px; z-index:1; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
 
+
+    /* Checklist layout */
+    .clSection{ font-weight:900; letter-spacing:.06em; text-transform:uppercase; text-align:center; margin:14px 0 10px; opacity:.95; }
+    .clNote{ text-align:center; font-style:italic; font-weight:800; margin:10px 0; opacity:.85; }
+    .clRow{ display:flex; align-items:center; gap:14px; padding:10px 2px; }
+    .clRow input[type="checkbox"]{ width:26px; height:26px; flex:0 0 auto; }
+    .clText{ flex:1 1 auto; line-height:1.25; }
+    .clRow.lvl1{ padding-left:26px; }
+    .clSubNote{ margin:6px 0 6px 40px; opacity:.8; font-weight:700; }
+
 </style>
 </head>
  
@@ -763,7 +773,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   $("tabChecklist").addEventListener("click", () => setTab("checklist"));
   $("tabSeat").addEventListener("click", () => setTab("seat"));
 const STORAGE_KEY = "e3a_planner_state_v1";
-  const CHECKLIST_ITEMS = [{"section": "MISSION PLANNING", "text": "APS Mission Overview", "tag": ""}, {"section": "MISSION PLANNING", "text": "WX Forecast", "tag": ""}, {"section": "MISSION PLANNING", "text": "Fuel Timeline", "tag": ""}, {"section": "MISSION PLANNING", "text": "Call WX (x6190)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Run TOLD w/ FE", "tag": ""}, {"section": "MISSION PLANNING", "text": "Joker & Bingo Fuel", "tag": ""}, {"section": "MISSION PLANNING", "text": "Dip Clearances (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Plan Request (SWAAI x6130/6131)", "tag": ""}, {"section": "MISSION PLANNING", "text": "Notification of Overflight (NOF) (OWES)", "tag": ""}, {"section": "MISSION PLANNING", "text": "NOTAMS", "tag": ""}, {"section": "MISSION PLANNING", "text": "CFPS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Email MP Slides to TD", "tag": ""}, {"section": "MISSION PLANNING", "text": "Approach Request to CMD Post", "tag": ""}, {"section": "MISSION PLANNING", "text": "Change Request (OWES), NLT 1400", "tag": ""}, {"section": "MISSION PLANNING", "text": "ORM", "tag": ""}, {"section": "MISSION PLANNING", "text": "Flight Orders", "tag": ""}, {"section": "MISSION PLANNING", "text": "Ops Brief", "tag": ""}, {"section": "MISSION PLANNING", "text": "Msn Pln'g Summary Report, NLT 1530", "tag": ""}, {"section": "MISSION PLANNING", "text": "Seat Flow / REVIEW STUD FOLDERS", "tag": ""}, {"section": "MISSION PLANNING", "text": "Cut Card", "tag": ""}, {"section": "MISSION PLANNING", "text": "Print CFPS Flight Log", "tag": ""}, {"section": "MISSION PLANNING", "text": "CRD in \"Missions\" Folder", "tag": ""}, {"section": "MISSION PLANNING", "text": "Message Pilots/FE Details/Assignments", "tag": ""}, {"section": "FLY DAY", "text": "Mission Binder", "tag": ""}, {"section": "FLY DAY", "text": "M2 (if no MSN Crew)", "tag": ""}, {"section": "FLY DAY", "text": "Login to Brief", "tag": ""}, {"section": "FLY DAY", "text": "Check/Sign Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "Email Orders/ORM", "tag": ""}, {"section": "FLY DAY", "text": "3x Copies of Flt Orders", "tag": ""}, {"section": "FLY DAY", "text": "AIS", "tag": ""}, {"section": "FLY DAY", "text": "Flt Plan → Foreflight", "tag": ""}];
+  const CHECKLIST_MODEL = [{"type": "section", "text": "MISSION PLANNING"}, {"type": "item", "level": 0, "text": "APS Mission Overview", "key": "cl_0"}, {"type": "item", "level": 0, "text": "WX Forecast", "key": "cl_1"}, {"type": "note", "text": "Initial Meeting"}, {"type": "item", "level": 0, "text": "Fuel Timeline", "key": "cl_2"}, {"type": "item", "level": 0, "text": "Call WX (x6190)", "key": "cl_3"}, {"type": "item", "level": 0, "text": "Run TOLD w/ FE", "key": "cl_4"}, {"type": "item", "level": 0, "text": "Joker & Bingo Fuel", "key": "cl_5"}, {"type": "note", "text": "\"How Goes It Meeting\""}, {"type": "item", "level": 0, "text": "Dip Clearances (OWES)", "key": "cl_6"}, {"type": "item", "level": 0, "text": "Flight Plan Request (SWAAI x6130/6131)", "key": "cl_7"}, {"type": "item", "level": 1, "text": "Email to SWAAI and All Pilots", "key": "cl_8"}, {"type": "item", "level": 0, "text": "Notification of Overflight (NOF) (OWES)", "key": "cl_9"}, {"type": "item", "level": 0, "text": "NOTAMS", "key": "cl_10"}, {"type": "item", "level": 0, "text": "CFPS", "key": "cl_11"}, {"type": "item", "level": 1, "text": "Screen Shots f/ Briefing Slides", "key": "cl_12"}, {"type": "item", "level": 0, "text": "Email MP Slides to TD", "key": "cl_13"}, {"type": "subnote", "level": 1, "text": "naew→e3agk"}, {"type": "item", "level": 0, "text": "Approach Request to CMD Post", "key": "cl_14"}, {"type": "item", "level": 0, "text": "Change Request (OWES), NLT 1400", "key": "cl_15"}, {"type": "note", "text": "Mission Summary Briefing"}, {"type": "item", "level": 0, "text": "ORM", "key": "cl_16"}, {"type": "item", "level": 0, "text": "Flight Orders", "key": "cl_17"}, {"type": "item", "level": 0, "text": "Ops Brief", "key": "cl_18"}, {"type": "subnote", "level": 1, "text": "□   POB"}, {"type": "subnote", "level": 1, "text": "□   Show Time"}, {"type": "subnote", "level": 1, "text": "□   Takeoff/Land Times"}, {"type": "subnote", "level": 1, "text": "□   Fuel Load"}, {"type": "subnote", "level": 1, "text": "□   Flight/Mission Profile"}, {"type": "subnote", "level": 1, "text": "□   SDP if Req'd"}, {"type": "subnote", "level": 1, "text": "□   ORM"}, {"type": "subnote", "level": 1, "text": "□   Contingencies/Alt Mission Profiles"}, {"type": "item", "level": 0, "text": "Msn Pln'g Summary Report, NLT 1530", "key": "cl_19"}, {"type": "item", "level": 0, "text": "Seat Flow / REVIEW STUD FOLDERS", "key": "cl_20"}, {"type": "note", "text": "Flight Deck Specialized"}, {"type": "item", "level": 0, "text": "Cut Card", "key": "cl_21"}, {"type": "item", "level": 0, "text": "Print CFPS Flight Log", "key": "cl_22"}, {"type": "item", "level": 0, "text": "CRD in \"Missions\" Folder", "key": "cl_23"}, {"type": "item", "level": 0, "text": "Message Pilots/FE Details/Assignments", "key": "cl_24"}, {"type": "section", "text": "FLY DAY"}, {"type": "item", "level": 0, "text": "Mission Binder", "key": "cl_25"}, {"type": "item", "level": 0, "text": "M2 (if no MSN Crew)", "key": "cl_26"}, {"type": "item", "level": 0, "text": "Login to Brief", "key": "cl_27"}, {"type": "item", "level": 1, "text": "Call Wx (x6190)", "key": "cl_28"}, {"type": "note", "text": "WX/NOTAMS/BIRDTAM Brief"}, {"type": "item", "level": 0, "text": "Check/Sign Flt Orders", "key": "cl_29"}, {"type": "item", "level": 0, "text": "Email Orders/ORM", "key": "cl_30"}, {"type": "item", "level": 1, "text": "Orders (CMD Post & Ops)", "key": "cl_31"}, {"type": "item", "level": 1, "text": "ORM (Safety)", "key": "cl_32"}, {"type": "item", "level": 0, "text": "3x Copies of Flt Orders", "key": "cl_33"}, {"type": "item", "level": 0, "text": "AIS", "key": "cl_34"}, {"type": "item", "level": 1, "text": "Check/Sign Flt Plan", "key": "cl_35"}, {"type": "item", "level": 1, "text": "Turn in 1x Copy of Orders", "key": "cl_36"}, {"type": "item", "level": 1, "text": "Pick Up Packet", "key": "cl_37"}, {"type": "item", "level": 0, "text": "Flt Plan → Foreflight", "key": "cl_38"}];
 
   function loadState(){
     try {
@@ -846,21 +856,60 @@ const STORAGE_KEY = "e3a_planner_state_v1";
     });
   }
 
+  
   function renderChecklist(){
     const state = getState();
     const root = $("checklistContainer");
     if (!root) return;
     root.innerHTML = "";
-    let current = "";
-    CHECKLIST_ITEMS.forEach((it, idx) => {
-      if (it.section !== current) {
-        current = it.section;
+
+    CHECKLIST_MODEL.forEach((it) => {
+      if (it.type === "section"){
         const h = document.createElement("div");
-        h.style.fontWeight = "700";
-        h.style.margin = "10px 0 6px";
-        h.textContent = current;
+        h.className = "clSection";
+        h.textContent = it.text;
         root.appendChild(h);
+        return;
       }
+      if (it.type === "note"){
+        const n = document.createElement("div");
+        n.className = "clNote";
+        n.textContent = it.text;
+        root.appendChild(n);
+        return;
+      }
+      if (it.type === "subnote"){
+        const sn = document.createElement("div");
+        sn.className = "clSubNote";
+        sn.textContent = it.text;
+        root.appendChild(sn);
+        return;
+      }
+
+      // checkbox item
+      const row = document.createElement("label");
+      row.className = "clRow " + (it.level === 1 ? "lvl1" : "lvl0");
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      const key = it.key;
+      cb.checked = !!state.checklist[key];
+      cb.addEventListener("change", () => {
+        const s = getState();
+        s.checklist[key] = !!cb.checked;
+        saveState(s);
+      });
+
+      const txt = document.createElement("div");
+      txt.className = "clText";
+      txt.textContent = it.text;
+
+      row.appendChild(cb);
+      row.appendChild(txt);
+      root.appendChild(row);
+    });
+  }
+
       const row = document.createElement("div");
       row.style.display = "flex";
       row.style.alignItems = "center";
@@ -974,8 +1023,9 @@ const STORAGE_KEY = "e3a_planner_state_v1";
   }
 
   function resetChecklist(){
+    if(!confirm("Reset checklist?")) return;
     const s = getState();
-    s.checklist = {};
+    Object.keys(s.checklist).forEach(k => { if (k.startsWith("cl_")) delete s.checklist[k]; });
     saveState(s);
     renderChecklist();
   }
@@ -1897,7 +1947,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-18 06:57:59 UTC (8ee3)";
+    v.textContent = "Build: 2026-02-18 07:08:40 UTC (3e31)";
     document.body.appendChild(v);
   });
 </script>
