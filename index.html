@@ -255,8 +255,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
     .iconBtn{ border:1px solid var(--border); background:var(--tab); color:var(--fg); border-radius:12px; padding:8px 10px; font-size:18px; line-height:18px; }
     .modal{ position:fixed; inset:0; z-index:9999; }
-    .modalBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
-    .modalSheet{ position:absolute; left:12px; right:12px; bottom:12px; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
+    .modalBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:0; }
+    .modalSheet{ position:absolute; left:12px; right:12px; bottom:12px; z-index:1; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
 
 </style>
 </head>
@@ -617,7 +617,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     </div>
 
     
-    <div class="card">
+    
+<div class="card">
       <label>AAR Info</label>
 
       <div class="row" style="margin-top:10px;">
@@ -636,7 +637,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           <label>Offload (klbs)</label>
           <input id="msn_tanker_offload" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
         </div>
-<div class="row" style="margin-top:10px;">
+        <div>
+          <label>&nbsp;</label>
+          <input type="text" value="" style="visibility:hidden;">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
         <div>
           <label>END AR WT (klbs)</label>
           <input id="msn_tanker_end_wt" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
@@ -646,16 +653,14 @@ input[type="time"]::-webkit-calendar-picker-indicator {
           <input id="msn_tanker_end_rqst" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" autocomplete="off" spellcheck="false">
         </div>
       </div>
-
-      <div class="divider"></div>
-
-      
     </div>
+
+
 
     <div class="card">
       <div class="row" style="align-items:center; justify-content:space-between;">
         <label style="margin:0;">Quick Reference</label>
-        <button id="qrSettingsBtn" class="iconBtn" aria-label="Settings">⚙️</button>
+        <button id="qrSettingsBtn" type="button" class="iconBtn" aria-label="Settings">⚙️</button>
       </div>
 
       <div class="mutedSmall" style="margin-top:6px;">Email morning of flight</div>
@@ -1877,7 +1882,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-17 18:44:40 UTC (45a0)";
+    v.textContent = "Build: 2026-02-18 06:50:27 UTC (cf26)";
     document.body.appendChild(v);
   });
 </script>
@@ -1888,7 +1893,7 @@ for reference only`;
   <div class="modalSheet">
     <div class="row" style="align-items:center; justify-content:space-between;">
       <div style="font-weight:900;">Quick Reference Settings</div>
-      <button id="qrSettingsClose" class="iconBtn" aria-label="Close">✕</button>
+      <button id="qrSettingsClose" type="button" class="iconBtn" aria-label="Close">✕</button>
     </div>
 
     <div style="margin-top:12px;">
@@ -1902,8 +1907,8 @@ for reference only`;
     </div>
 
     <div class="row" style="margin-top:14px;">
-      <button id="qrSettingsSave" class="btnSmall">Save</button>
-      <button id="qrSettingsClear" class="btnSmall danger">Clear</button>
+      <button id="qrSettingsSave" type="button" class="btnSmall">Save</button>
+      <button id="qrSettingsClear" type="button" class="btnSmall danger">Clear</button>
     </div>
   </div>
 </div>
