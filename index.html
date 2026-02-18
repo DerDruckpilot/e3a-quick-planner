@@ -240,7 +240,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .timeZ{ text-align:right; }
 
 
-    .btnSmall{ padding:8px 12px; border-radius:12px; border:1px solid var(--border); background:var(--tab); color:var(--fg); font-weight:800; }
+    .btnSmall{ padding:8px 12px; border-radius:12px; border:1px solid var(--border); background:var(--tab); color:var(--fg); font-weight:800;  touch-action: manipulation;}
     .btnSmall.danger{ background:rgba(255,0,0,.08); }
 
 
@@ -253,7 +253,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     #viewMsn .planTable input[type="time"]{ width:100%; max-width:100%; min-width:0; box-sizing:border-box; display:block; }
 
 
-    .iconBtn{ border:1px solid var(--border); background:var(--tab); color:var(--fg); border-radius:12px; padding:8px 10px; font-size:18px; line-height:18px; }
+    .iconBtn{ border:1px solid var(--border); background:var(--tab); color:var(--fg); border-radius:12px; padding:8px 10px; font-size:18px; line-height:18px;  touch-action: manipulation;}
     .modal{ position:fixed; inset:0; z-index:9999; }
     .modalBackdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:0; }
     .modalSheet{ position:absolute; left:12px; right:12px; bottom:12px; z-index:1; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
@@ -1797,6 +1797,21 @@ for reference only`;
     loadQuickRef();
     closeQrSettings();
   }
+
+  // Robust modal controls (event delegation)
+  document.addEventListener("click", (ev) => {
+    const t = ev.target;
+    if (t.closest && t.closest("#qrSettingsBtn")) { ev.preventDefault(); openQrSettings(); return; }
+    if (t.closest && t.closest("#qrSettingsClose")) { ev.preventDefault(); closeQrSettings(); return; }
+    if (t.closest && t.closest("#qrSettingsBackdrop")) { ev.preventDefault(); closeQrSettings(); return; }
+    if (t.closest && t.closest("#qrSettingsSave")) { ev.preventDefault(); saveQrSettings(); return; }
+    if (t.closest && t.closest("#qrSettingsClear")) { ev.preventDefault(); clearQrSettings(); return; }
+  });
+
+  // ESC closes (if keyboard available)
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") closeQrSettings();
+  });
 // INIT
   applySavedInputs();
   renderChecklist();
@@ -1882,7 +1897,7 @@ for reference only`;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-18 06:50:27 UTC (cf26)";
+    v.textContent = "Build: 2026-02-18 06:57:59 UTC (8ee3)";
     document.body.appendChild(v);
   });
 </script>
@@ -1890,7 +1905,7 @@ for reference only`;
 
 <div id="qrSettingsModal" class="modal hidden">
   <div class="modalBackdrop" id="qrSettingsBackdrop"></div>
-  <div class="modalSheet">
+  <div class="modalSheet" id="qrSettingsSheet">
     <div class="row" style="align-items:center; justify-content:space-between;">
       <div style="font-weight:900;">Quick Reference Settings</div>
       <button id="qrSettingsClose" type="button" class="iconBtn" aria-label="Close">✕</button>
