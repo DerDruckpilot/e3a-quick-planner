@@ -268,21 +268,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .clRow.lvl1{ padding-left:26px; }
     .clSubNote{ margin:6px 0 6px 40px; opacity:.8; font-weight:700; }
 
+    /* UI fixes */
+    #msnButtonsRow{ display:flex; gap:12px; }
     .clRow{ cursor:pointer; -webkit-tap-highlight-color: transparent; }
     .clRow input[type="checkbox"]{ pointer-events:auto; }
     .clText{ pointer-events:none; }
 
 
-    /* Seat Flow */
-    .sfRow{ border:1px solid var(--border); background:var(--card); border-radius:18px; padding:12px; margin:10px 0; }
-    .sfLine{ display:grid; grid-template-columns: 1.1fr 1fr auto 1fr; gap:10px; align-items:center; }
-    .sfLine2{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px; }
-    .sfHyphen{ opacity:.7; font-weight:900; text-align:center; }
-    #viewSeatFlow select, #viewSeatFlow input{ width:100%; box-sizing:border-box; }
-
-
     /* Seat Flow (2-line rows) */
-    .seatRow{ border:1px solid var(--border); background:var(--card); border-radius:18px; padding:12px; margin:10px 0; }
+    .seatRow{ border:1px solid var(--border); background:var(--card); border-radius:18px; padding:12px; }
     .seatLine1{ display:grid; grid-template-columns: 1.1fr 1fr auto 1fr; gap:10px; align-items:center; }
     .seatLine2{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px; }
     .seatHyphen{ opacity:.7; font-weight:900; text-align:center; }
@@ -721,17 +715,13 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     </div>
 
     
-      <div class="disclaimer">stored locally on this device</div>
-  
-
-    <div class="card" style="margin-top:12px;">
-      <div class="row">
+      <div id="msnButtonsRow" class="row" style="margin-top:14px;">
         <button id="msnExport" class="btnSmall">Export MSN</button>
         <button id="msnReset" class="btnSmall danger">Reset MSN</button>
       </div>
-    </div>
 
-</div>
+    <div class="disclaimer">stored locally on this device</div>
+  </div>
 
   <!-- CHECKLIST TAB -->
   <div id="viewChecklist" class="hidden">
@@ -748,7 +738,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   <div id="viewSeat" class="hidden">
     <div class="card">
       <label>Seat Flow</label>
-      <div id="seatRows"></div>
+      <table>
+        <thead>
+          <tr>
+            <td><b>Phase</b></td>
+            <td><b>Left</b></td>
+            <td><b>Right</b></td>
+            <td><b>Seat 5</b></td>
+            <td style="text-align:right;"><b>Time</b></td>
+          </tr>
+        </thead>
+        <tbody id="seatTableBody"></tbody>
+      </table>
       <div class="btnrow">
         <button id="addSeatRowBtn">Add row</button>
         <button id="resetSeatBtn">Reset</button>
@@ -915,83 +916,20 @@ const CHECKLIST_ITEMS = [{"section": "MISSION PLANNING", "text": "APS Mission Ov
     });
   }
 
-  
-function seatRowEl(r, idx){
-    const wrap = document.createElement("div");
-    wrap.className = "seatRow";
+  function seatRowEl(row){
+    const tr = document.createElement("tr");
 
-    const l1 = document.createElement("div");
-    l1.className = "seatLine1";
-
-    const phase = document.createElement("select");
-    phase.innerHTML = `
-      <option value="">Phase</option>
-      <option value="TakeOff">TakeOff</option>
-      <option value="Transition">Transition</option>
-      <option value="Landing">Landing</option>
-    `;
-    phase.value = r.phase || "";
-    phase.addEventListener("change", () => { const s=getState(); s.seat[idx].phase = phase.value; saveState(s); });
-
-    const tStart = document.createElement("input");
-    tStart.type = "time"; tStart.step = "60";
-    tStart.value = r.tStart || "";
-    tStart.addEventListener("change", () => { const s=getState(); s.seat[idx].tStart = tStart.value; saveState(s); });
-
-    const hy = document.createElement("div");
-    hy.className = "seatHyphen";
-    hy.textContent = "–";
-
-    const tEnd = document.createElement("input");
-    tEnd.type = "time"; tEnd.step = "60";
-    tEnd.value = r.tEnd || "";
-    tEnd.addEventListener("change", () => { const s=getState(); s.seat[idx].tEnd = tEnd.value; saveState(s); });
-
-    l1.appendChild(phase);
-    l1.appendChild(tStart);
-    l1.appendChild(hy);
-    l1.appendChild(tEnd);
-
-    const l2 = document.createElement("div");
-    l2.className = "seatLine2";
-
-    const left = document.createElement("input");
-    left.type = "text"; left.placeholder = "Left";
-    left.value = r.left || "";
-    left.addEventListener("input", () => { const s=getState(); s.seat[idx].left = left.value; saveState(s); });
-
-    const right = document.createElement("input");
-    right.type = "text"; right.placeholder = "Right";
-    right.value = r.right || "";
-    right.addEventListener("input", () => { const s=getState(); s.seat[idx].right = right.value; saveState(s); });
-
-    const seat5 = document.createElement("input");
-    seat5.type = "text"; seat5.placeholder = "Seat 5";
-    seat5.value = r.seat5 || "";
-    seat5.addEventListener("input", () => { const s=getState(); s.seat[idx].seat5 = seat5.value; saveState(s); });
-
-    l2.appendChild(left);
-    l2.appendChild(right);
-    l2.appendChild(seat5);
-
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "iconBtn";
-    del.textContent = "×";
-    del.style.marginTop = "10px";
-    del.addEventListener("click", () => {
-      const s=getState();
-      s.seat.splice(idx,1);
-      saveState(s);
-      renderSeat();
-    });
-
-    wrap.appendChild(l1);
-    wrap.appendChild(l2);
-    wrap.appendChild(del);
-    return wrap;
-}
-
+    function cell(key, placeholder, type="text"){
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.type = type;
+      if (type === "time") inp.step = "60";
+      inp.placeholder = placeholder;
+      inp.value = row[key] || "";
+      inp.addEventListener("input", persistSeat);
+      td.appendChild(inp);
+      return [td, inp];
+    }
 
     const [tdPhase, iPhase] = cell("phase", "Phase");
     const [tdLeft, iLeft] = cell("left", "Left");
@@ -1043,28 +981,23 @@ function seatRowEl(r, idx){
     saveState(state);
   }
 
-  
-function renderSeat(){
+  function renderSeat(){
     const state = getState();
-    const root = $("seatRows");
-    if (!root) return;
-    root.innerHTML = "";
+    const body = $("seatTableBody");
+    if (!body) return;
+    body.innerHTML = "";
     const rows = (state.seat && state.seat.length) ? state.seat : [{},{},{},{},{}];
-    // normalize existing rows from old schema
     rows.forEach(r => {
-      if (r.time && (!r.tStart && !r.tEnd)){
-        // best-effort: place old time into start, leave end empty
-        r.tStart = r.time;
-        r.tEnd = "";
-        delete r.time;
-      }
+      const tr = seatRowEl({
+        phase: r.phase || "",
+        left: r.left || "",
+        right: r.right || "",
+        seat5: r.seat5 || "",
+        time: r.time || ""
+      });
+      body.appendChild(tr);
     });
-    // persist normalization once
-    if (!state.seat || state.seat !== rows){ state.seat = rows; saveState(state); }
-
-    rows.forEach((r, idx) => root.appendChild(seatRowEl(r, idx)));
-}
-
+  }
 
   function resetChecklist(){
     const s = getState();
@@ -1073,15 +1006,12 @@ function renderSeat(){
     renderChecklist();
   }
 
-  
-function resetSeat(){
-    if(!confirm("Reset seat flow?")) return;
+  function resetSeat(){
     const s = getState();
-    s.seat = [{},{},{},{},{}].map(()=>({phase:"", tStart:"", tEnd:"", left:"", right:"", seat5:""}));
+    s.seat = [];
     saveState(s);
     renderSeat();
-}
-
+  }
 
   function resetMsn(){
     const ids = ["msn_msn","msn_callsign","msn_tail","msn_pob","msn_orbit","msn_parking","msn_status","msn_spare","msn_alternate",
@@ -1911,13 +1841,6 @@ for reference only`;
 
   // =========================
   // CHECKLIST (Excel-accurate layout override)
-  const CHECKLIST_MODEL_FIXED = (Array.isArray(CHECKLIST_MODEL) ? CHECKLIST_MODEL.map((it, i) => {
-    if (it && it.type === "subnote" && typeof it.text === "string" && it.text.trim().startsWith("□")){
-      return { type:"item", level:1, text: it.text.replace(/^\s*□\s*/,"").trim(), key: `cl_auto_${i}` };
-    }
-    return it;
-  }) : []);
-
   // =========================
   function renderChecklist(){
     const state = getState();
@@ -1925,7 +1848,7 @@ for reference only`;
     if (!root) return;
     root.innerHTML = "";
 
-    CHECKLIST_MODEL_FIXED.forEach((it) => {
+    CHECKLIST_MODEL.forEach((it) => {
       if (it.type === "section"){
         const h = document.createElement("div");
         h.className = "clSection";
@@ -1979,16 +1902,205 @@ for reference only`;
     renderChecklist();
   }
 
+  // =========================
+  // PATCHES: Checklist + MSN buttons + Seat Flow
+  // =========================
 
-function addSeatRow(){
+  function updateMsnButtonsVisibility(){
+    const row = $("msnButtonsRow");
+    if(!row) return;
+    // show only when MSN Planning tab is active
+    const msnView = $("viewMsn");
+    const msnActive = msnView && !msnView.classList.contains("hidden");
+    row.style.display = msnActive ? "flex" : "none";
+  }
+
+  // Override renderChecklist to treat indented '□ ...' lines as real checkboxes
+  function renderChecklist(){
+    const state = getState();
+    const root = $("checklistContainer");
+    if (!root) return;
+    root.innerHTML = "";
+
+    const model = (Array.isArray(CHECKLIST_MODEL) ? CHECKLIST_MODEL : []).map((it, i) => {
+      if (it && it.type === "subnote" && typeof it.text === "string" && it.text.trim().startsWith("□")){
+        return { type:"item", level:1, text: it.text.replace(/^\s*□\s*/,"").trim(), key: `cl_auto_${i}` };
+      }
+      return it;
+    });
+
+    model.forEach((it) => {
+      if (it.type === "section"){
+        const h = document.createElement("div");
+        h.className = "clSection";
+        h.textContent = it.text;
+        root.appendChild(h);
+        return;
+      }
+      if (it.type === "note"){
+        const n = document.createElement("div");
+        n.className = "clNote";
+        n.textContent = it.text;
+        root.appendChild(n);
+        return;
+      }
+      if (it.type === "subnote"){
+        const sn = document.createElement("div");
+        sn.className = "clSubNote";
+        sn.textContent = it.text;
+        root.appendChild(sn);
+        return;
+      }
+
+      const row = document.createElement("label");
+      row.className = "clRow " + (it.level === 1 ? "lvl1" : "lvl0");
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      const key = it.key;
+      cb.checked = !!state.checklist[key];
+      cb.addEventListener("change", () => {
+        const s = getState();
+        s.checklist[key] = !!cb.checked;
+        saveState(s);
+      });
+
+      const txt = document.createElement("div");
+      txt.className = "clText";
+      txt.textContent = it.text;
+
+      row.appendChild(cb);
+      row.appendChild(txt);
+      root.appendChild(row);
+    });
+  }
+
+  function resetChecklist(){
+    if(!confirm("Reset checklist?")) return;
+    const s = getState();
+    Object.keys(s.checklist).forEach(k => { if (k.startsWith("cl_") || k.startsWith("cl_auto_")) delete s.checklist[k]; });
+    saveState(s);
+    renderChecklist();
+  }
+
+  // Seat Flow: render as 2-line layout inside existing table (no DOM surgery)
+  function seatRowEl(r, idx){
+    const tr = document.createElement("tr");
+
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.style.padding = "10px 0";
+
+    const wrap = document.createElement("div");
+    wrap.className = "seatRow";
+
+    const l1 = document.createElement("div");
+    l1.className = "seatLine1";
+
+    const phase = document.createElement("select");
+    phase.innerHTML = `
+      <option value="">Phase</option>
+      <option value="TakeOff">TakeOff</option>
+      <option value="Transition">Transition</option>
+      <option value="Landing">Landing</option>
+    `;
+    phase.value = r.phase || "";
+    phase.addEventListener("change", () => { const s=getState(); s.seat[idx].phase = phase.value; saveState(s); });
+
+    const tStart = document.createElement("input");
+    tStart.type = "time"; tStart.step = "60";
+    tStart.value = r.tStart || (r.time || "");
+    tStart.addEventListener("change", () => { const s=getState(); s.seat[idx].tStart = tStart.value; if(s.seat[idx].time) delete s.seat[idx].time; saveState(s); });
+
+    const hy = document.createElement("div");
+    hy.className = "seatHyphen";
+    hy.textContent = "–";
+
+    const tEnd = document.createElement("input");
+    tEnd.type = "time"; tEnd.step = "60";
+    tEnd.value = r.tEnd || "";
+    tEnd.addEventListener("change", () => { const s=getState(); s.seat[idx].tEnd = tEnd.value; saveState(s); });
+
+    l1.appendChild(phase);
+    l1.appendChild(tStart);
+    l1.appendChild(hy);
+    l1.appendChild(tEnd);
+
+    const l2 = document.createElement("div");
+    l2.className = "seatLine2";
+
+    const left = document.createElement("input");
+    left.type = "text"; left.placeholder = "Left";
+    left.value = r.left || "";
+    left.addEventListener("input", () => { const s=getState(); s.seat[idx].left = left.value; saveState(s); });
+
+    const right = document.createElement("input");
+    right.type = "text"; right.placeholder = "Right";
+    right.value = r.right || "";
+    right.addEventListener("input", () => { const s=getState(); s.seat[idx].right = right.value; saveState(s); });
+
+    const seat5 = document.createElement("input");
+    seat5.type = "text"; seat5.placeholder = "Seat 5";
+    seat5.value = r.seat5 || "";
+    seat5.addEventListener("input", () => { const s=getState(); s.seat[idx].seat5 = seat5.value; saveState(s); });
+
+    l2.appendChild(left);
+    l2.appendChild(right);
+    l2.appendChild(seat5);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "iconBtn";
+    del.textContent = "×";
+    del.style.marginTop = "10px";
+    del.addEventListener("click", () => {
+      const s=getState();
+      s.seat.splice(idx,1);
+      saveState(s);
+      renderSeat();
+    });
+
+    wrap.appendChild(l1);
+    wrap.appendChild(l2);
+    wrap.appendChild(del);
+    td.appendChild(wrap);
+    tr.appendChild(td);
+    return tr;
+  }
+
+  function renderSeat(){
+    const state = getState();
+    const tbody = $("seatTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (!Array.isArray(state.seat)) state.seat = [];
+    if (state.seat.length === 0) state.seat = Array.from({length:5}, () => ({phase:"", tStart:"", tEnd:"", left:"", right:"", seat5:""}));
+    saveState(state);
+
+    state.seat.forEach((r, idx) => tbody.appendChild(seatRowEl(r, idx)));
+  }
+
+  function addSeatRow(){
     const s = getState();
     if (!Array.isArray(s.seat)) s.seat = [];
     s.seat.push({phase:"", tStart:"", tEnd:"", left:"", right:"", seat5:""});
     saveState(s);
     renderSeat();
-}
+  }
 
-// INIT
+  function resetSeat(){
+    if(!confirm("Reset seat flow?")) return;
+    const s = getState();
+    s.seat = Array.from({length:5}, () => ({phase:"", tStart:"", tEnd:"", left:"", right:"", seat5:""}));
+    saveState(s);
+    renderSeat();
+  }
+
+
+const __origSetTab = setTab;
+  setTab = function(name){ __origSetTab(name); updateMsnButtonsVisibility(); };
+
+  // INIT
   applySavedInputs();
   renderChecklist();
   renderSeat();
@@ -2027,6 +2139,7 @@ function addSeatRow(){
     $("msnExport")?.addEventListener("click", exportMsnState);
     $("msnReset")?.addEventListener("click", resetMsnState);
     setTab("fuel");
+    updateMsnButtonsVisibility();
 })();
 </script>
 <script>
@@ -2073,7 +2186,7 @@ function addSeatRow(){
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-18 19:04:01 UTC (7b6a)";
+    v.textContent = "Build: 2026-02-18 19:11:05 UTC (9fad)";
     document.body.appendChild(v);
   });
 </script>
