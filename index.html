@@ -282,6 +282,26 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     .seatHyphen{ opacity:.7; font-weight:900; text-align:center; }
     #viewSeat select, #viewSeat input{ width:100%; box-sizing:border-box; }
 
+
+    /* MSN Planning - Timeline & Events layout fixes */
+    .msnTimelineTable{ width:100%; border-collapse:collapse; table-layout:fixed; }
+    .msnTimelineTable th, .msnTimelineTable td{ padding:10px 6px; }
+    .msnTimelineTable th:nth-child(1), .msnTimelineTable td:nth-child(1){ width:38%; }
+    .msnTimelineTable th:nth-child(2), .msnTimelineTable td:nth-child(2){ width:27%; }
+    .msnTimelineTable th:nth-child(3), .msnTimelineTable td:nth-child(3){ width:35%; }
+    .msnTimelineTable input[type="time"]{ width:100%; box-sizing:border-box; min-width:0; }
+    .msnLocalBox{ width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,.02); text-align:center; font-variant-numeric:tabular-nums; }
+    .msnTimelineTable td:nth-child(2){ padding-left:12px; padding-right:12px; }
+    .msnTimelineTable td:nth-child(3){ padding-right:0; }
+    .msnTimelineTable th:nth-child(3){ padding-right:0; }
+
+    .msnEventsTable{ width:100%; border-collapse:collapse; table-layout:fixed; }
+    .msnEventsTable th, .msnEventsTable td{ padding:10px 6px; vertical-align:middle; }
+    .msnEventsTable th:nth-child(1), .msnEventsTable td:nth-child(1){ width:28%; }
+    .msnEventsTable th:nth-child(2), .msnEventsTable td:nth-child(2){ width:36%; }
+    .msnEventsTable th:nth-child(3), .msnEventsTable td:nth-child(3){ width:36%; }
+    .msnEventsTable input[type="time"]{ width:100%; box-sizing:border-box; min-width:0; }
+
 </style>
 </head>
  
@@ -2186,7 +2206,7 @@ const __origSetTab = setTab;
     v.style.fontSize = "11px";
     v.style.opacity = "0.6";
     v.style.marginTop = "4px";
-    v.textContent = "Build: 2026-02-18 19:11:05 UTC (9fad)";
+    v.textContent = "Build: 2026-02-19 07:43:48 UTC (2ac0)";
     document.body.appendChild(v);
   });
 </script>
